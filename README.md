@@ -1,2 +1,2 @@
 # Inteligentna-spizarka
-Projekt inteligentnej spiżarki. Możliwości:
+Projekt inteligentnej spiżarki. Możliwości: 👍
