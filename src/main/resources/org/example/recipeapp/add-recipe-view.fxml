@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox fx:controller="org.example.recipeapp.AddRecipeController" prefWidth="480.0" spacing="25.0" style="-fx-background-color: #1E1E2C;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+    <padding><Insets bottom="40.0" left="40.0" right="40.0" top="40.0" /></padding>
+
+    <VBox spacing="5.0">
+        <Label text="Nowy Przepis" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white;" />
+        <Label text="Wprowadź dane, aby zaktualizować spiżarnię" style="-fx-text-fill: #BB86FC;" />
+    </VBox>
+
+    <VBox spacing="20.0">
+        <VBox spacing="8.0">
+            <Label text="NAZWA PRZEPISU" style="-fx-text-fill: #A0A0B8; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <TextField fx:id="titleField" style="-fx-background-color: #2D2D44; -fx-text-fill: white; -fx-border-color: #444466; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 12;" />
+        </VBox>
+
+        <VBox spacing="8.0">
+            <Label text="OPIS / INSTRUKCJA" style="-fx-text-fill: #A0A0B8; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <TextArea fx:id="descField" prefHeight="100.0" style="-fx-control-inner-background: #2D2D44; -fx-text-fill: white; -fx-border-color: #444466; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 10;" wrapText="true" />
+        </VBox>
+
+        <VBox spacing="8.0">
+            <Label text="SKŁADNIKI" style="-fx-text-fill: #A0A0B8; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <HBox spacing="10.0">
+                <TextField fx:id="ingredientInput" HBox.hgrow="ALWAYS"
+                           style="-fx-background-color: #2D2D44; -fx-text-fill: white; -fx-border-color: #444466; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 10;" />
+                <Button onAction="#onAddIngredientToList" text="+"
+                        style="-fx-background-color: #BB86FC; -fx-text-fill: #1E1E2C; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" />
+            </HBox>
+
+            <ListView fx:id="ingredientsListView" prefHeight="120.0"
+                      style="-fx-background-color: #2D2D44; -fx-control-inner-background: #2D2D44; -fx-border-color: #444466; -fx-border-radius: 8; -fx-background-radius: 8;" />
+
+            <Label text="Kliknij dwukrotnie na składnik, aby go usunąć" style="-fx-text-fill: #636E72; -fx-font-size: 9px;" />
+        </VBox>
+    </VBox>
+
+    <HBox alignment="CENTER_RIGHT">
+        <Button onAction="#onSaveRecipe" prefHeight="45.0" prefWidth="160.0" style="-fx-background-color: #8E44AD; -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand; -fx-font-weight: bold;" text="Zapisz przepis" />
+    </HBox>
+</VBox>

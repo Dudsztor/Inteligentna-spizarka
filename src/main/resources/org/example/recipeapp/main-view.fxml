@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="650.0" prefWidth="1000.0" spacing="0.0" style="-fx-background-color: #1E1E2C;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.recipeapp.HelloController">
+
+    <HBox alignment="CENTER_LEFT" prefHeight="80.0" style="-fx-background-color: #252538; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);">
+        <padding><Insets left="30.0" right="30.0" /></padding>
+        <VBox alignment="CENTER_LEFT">
+            <Label text="Inteligentna Spiżarnia" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 22px;" />
+            <Label text="Zarządzaj swoimi zapasami i przepisami" style="-fx-text-fill: #A0A0B8; -fx-font-size: 12px;" />
+        </VBox>
+        <Pane HBox.hgrow="ALWAYS" />
+        <Button style="-fx-background-color: linear-gradient(to right, #8E44AD, #A569BD); -fx-text-fill: white; -fx-background-radius: 12; -fx-cursor: hand;" text="Dodaj przepis">
+            <font><Font name="System Bold" size="14.0" /></font>
+            <padding><Insets bottom="10.0" left="25.0" right="25.0" top="10.0" /></padding>
+        </Button>
+    </HBox>
+
+    <HBox spacing="25.0" VBox.vgrow="ALWAYS">
+        <padding><Insets bottom="25.0" left="25.0" right="25.0" top="25.0" /></padding>
+
+        <VBox minWidth="300.0" style="-fx-background-color: #2D2D44; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0);">
+            <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+            <Label text="TWOJE SKŁADNIKI" style="-fx-text-fill: #BB86FC; -fx-font-weight: bold; -fx-font-size: 12px; -fx-letter-spacing: 1.5;" />
+            <Separator opacity="0.1" style="-fx-padding: 15 0 15 0;" />
+            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                <VBox fx:id="ingredientsContainer" spacing="12.0" />
+            </ScrollPane>
+            <CheckBox text="Zaznacz wszystko" style="-fx-text-fill: white; -fx-padding: 15 0 0 0;" />
+        </VBox>
+
+        <VBox spacing="15.0" HBox.hgrow="ALWAYS" style="-fx-background-color: #2D2D44; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0);">
+            <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+            <Label text="DOSTĘPNE PRZEPISY" style="-fx-text-fill: #BB86FC; -fx-font-weight: bold; -fx-font-size: 12px; -fx-letter-spacing: 1.5;" />
+            <ListView fx:id="recipeList" style="-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-background-insets: 0;" VBox.vgrow="ALWAYS" />
+        </VBox>
+    </HBox>
+</VBox>
