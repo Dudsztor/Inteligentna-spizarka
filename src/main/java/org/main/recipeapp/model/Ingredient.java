@@ -1,4 +1,4 @@
-package org.example.recipeapp.model;
+package org.main.recipeapp.model;
 
 public class Ingredient {
     private String name;

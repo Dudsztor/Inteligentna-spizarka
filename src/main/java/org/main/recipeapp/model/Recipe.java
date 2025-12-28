@@ -1,4 +1,4 @@
-package org.example.recipeapp.model;
+package org.main.recipeapp.model;
 
 import java.util.List;
 
