@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import org.main.recipeapp.dao.RecipeDao;
 import org.main.recipeapp.model.Ingredient;
 import org.main.recipeapp.model.Recipe;
@@ -14,6 +15,8 @@ import java.util.List;
 public class AddRecipeController {
     @FXML private TextField ingredientInput;
     @FXML private ListView<String> ingredientsListView;
+    @FXML private TextField titleField;
+    @FXML private TextArea descField;
 
     private final ObservableList<String> tempIngredients = FXCollections.observableArrayList();
 
@@ -47,8 +50,8 @@ public class AddRecipeController {
     //zapisywanie przepisu
     @FXML
     private void onSaveRecipe() {
-        String title = "Przykładowy Tytuł"; // tutaj dodac pobranie tekstu z pola tekstowego tytułu (dodać do FXML)
-        String description = "Opis...";     // to samo dla opisu
+        String title = titleField.getText().trim(); // pobieranie tekstu z pola
+        String description = descField.getText().trim();     // pobieranie opisu z pola
 
         List<Ingredient> ingredientsList = new ArrayList<>();
 
@@ -67,5 +70,9 @@ public class AddRecipeController {
         // Opcjonalnie: wyczyść pola formularza po zapisie
         tempIngredients.clear();
         ingredientInput.clear();
+
+        //zamykanie okna po zapisie
+        Stage stage = (Stage) titleField.getScene().getWindow();
+        stage.close();
     }
 }

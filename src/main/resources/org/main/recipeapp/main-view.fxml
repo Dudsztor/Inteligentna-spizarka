@@ -14,7 +14,7 @@
             <Label text="Zarządzaj swoimi zapasami i przepisami" style="-fx-text-fill: #A0A0B8; -fx-font-size: 12px;" />
         </VBox>
         <Pane HBox.hgrow="ALWAYS" />
-        <Button style="-fx-background-color: linear-gradient(to right, #8E44AD, #A569BD); -fx-text-fill: white; -fx-background-radius: 12; -fx-cursor: hand;" text="Dodaj przepis">
+        <Button onAction="#onAddRecipeClick" style="-fx-background-color: linear-gradient(to right, #8E44AD, #A569BD); -fx-text-fill: white; -fx-background-radius: 12; -fx-cursor: hand;" text="Dodaj przepis">
             <font><Font name="System Bold" size="14.0" /></font>
             <padding><Insets bottom="10.0" left="25.0" right="25.0" top="10.0" /></padding>
         </Button>
