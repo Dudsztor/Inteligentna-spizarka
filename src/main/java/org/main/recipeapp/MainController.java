@@ -6,51 +6,85 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.stage.Modality;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.main.recipeapp.dao.RecipeDao;
 import org.main.recipeapp.model.Recipe;
 
 import java.io.IOException;
-import java.util.List;
 
 public class MainController {
 
-    @FXML private ListView<Recipe> recipesList;
+    // --- LEWA KOLUMNA (Spiżarnia) ---
+    // do dodania
+
+    // --- ŚRODKOWA KOLUMNA (Smart Lista) ---
+    @FXML private ListView<Recipe> smartRecipeList;
+
+    // --- PRAWA KOLUMNA (Wyszukiwarka) ---
+    @FXML private TextField searchField;
+    @FXML private ListView<Recipe> allRecipesList;
+
     private RecipeDao recipeDao = new RecipeDao();
+    private ObservableList<Recipe> allRecipesObservable = FXCollections.observableArrayList();
 
     @FXML
-    public void initialize(){
-        //refreshRecipesList();
+    public void initialize() {
+        // konfiguracja prawej kolumny (baza wszystkich przepisów)
+        allRecipesList.setItems(allRecipesObservable);
+        loadRecipes(""); // Załaduj wszystko na start
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            loadRecipes(newValue);
+        });
+
+        // ladne wyświetlanie nazw
+        setupListViewCellFactory(allRecipesList);
+
+        // tutaj do zrobienia srodkowa kolumna z dostepnymi przepisami
+        // setupListViewCellFactory(smartRecipeList);
     }
 
-    //odświeżanie listy przepisów
-    private void refreshRecipesList(){
-        List<Recipe> recipesFromDB = recipeDao.getAllRecipes();
-        ObservableList<Recipe> observableList = FXCollections.observableList(recipesFromDB);
-        recipesList.setItems(observableList);
+    private void loadRecipes(String query) {
+        allRecipesObservable.clear();
+        if (query == null || query.isEmpty()) {
+            allRecipesObservable.addAll(recipeDao.getAllRecipes());
+        } else {
+            allRecipesObservable.addAll(recipeDao.searchRecipes(query));
+        }
+    }
+
+    // metoda ustawiająca wygląd komórki dla dowolnej listy przepisów
+    private void setupListViewCellFactory(ListView<Recipe> listView) {
+        listView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Recipe item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getTitle());
+                }
+            }
+        });
     }
 
     @FXML
     protected void onAddRecipeClick() {
         try {
-            //ładowanie drugiego okna
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-recipe-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/UI/recipeapp/add-recipe-view.fxml"));
             Parent root = fxmlLoader.load();
-
-            //nowe okno
             Stage stage = new Stage();
             stage.setTitle("Dodaj nowy przepis");
             stage.setScene(new Scene(root));
             stage.showAndWait();
 
-            refreshRecipesList();
-
+            // Odśwież prawą kolumnę po dodaniu
+            loadRecipes(searchField.getText());
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Nie udało się otworzyć okna dodawania przepisu.");
         }
     }
 }
