@@ -32,7 +32,7 @@ public class RecipeDao {
     // metoda do pobierania wszystkich przepisów
     public List<Recipe> getAllRecipes() {
         List<Recipe> recipes = new ArrayList<>();
-        String sql = "SELECT * FROM recipes";
+        String sql = "SELECT id, title, description FROM recipes";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              Statement stmt = conn.createStatement();
@@ -43,6 +43,7 @@ public class RecipeDao {
                 List<Ingredient> emptyIngredients = new ArrayList<>();
 
                 Recipe recipe = new Recipe(
+                        rs.getInt("id"),
                         rs.getString("title"),
                         rs.getString("description"),
                         emptyIngredients
