@@ -55,4 +55,33 @@ public class RecipeDao {
         }
         return recipes;
     }
+
+    public List<Recipe> searchRecipes(String query) {
+        List<Recipe> recipes = new ArrayList<>();
+        // lower() sprawia, że wielkość liter nie ma znaczenia (np. "Jajecznica" vs "jajecznica")
+        String sql = "SELECT id, title, description FROM recipes WHERE lower(title) LIKE lower(?)";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // %query% oznacza: szukaj tego tekstu w środku, na początku lub na końcu
+            pstmt.setString(1, "%" + query + "%");
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    // Tu decydujesz: czy pobierasz składniki od razu, czy pustą listę (Lazy Loading).
+                    // Do szybkiej wyszukiwarki pusta lista jest szybsza:
+                    recipes.add(new Recipe(
+                            rs.getInt("id"), // Pamiętaj o dodaniu pola ID do klasy Recipe!
+                            rs.getString("title"),
+                            rs.getString("description"),
+                            new ArrayList<>() // Pusta lista składników na start
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Błąd wyszukiwania: " + e.getMessage());
+        }
+        return recipes;
+    }
 }

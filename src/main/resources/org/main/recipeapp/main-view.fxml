@@ -20,23 +20,45 @@
         </Button>
     </HBox>
 
-    <HBox spacing="25.0" VBox.vgrow="ALWAYS">
-        <padding><Insets bottom="25.0" left="25.0" right="25.0" top="25.0" /></padding>
+    <HBox spacing="20.0" VBox.vgrow="ALWAYS">
+        <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
 
-        <VBox minWidth="300.0" style="-fx-background-color: #2D2D44; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0);">
+        <VBox minWidth="280.0" style="-fx-background-color: #2D2D44; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0);">
             <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
             <Label text="TWOJE SKŁADNIKI" style="-fx-text-fill: #BB86FC; -fx-font-weight: bold; -fx-font-size: 12px; -fx-letter-spacing: 1.5;" />
             <Separator opacity="0.1" style="-fx-padding: 15 0 15 0;" />
-            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
-                <VBox fx:id="ingredientsContainer" spacing="12.0" />
+
+            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
+                <VBox fx:id="ingredientsContainer" spacing="10.0" />
             </ScrollPane>
-            <CheckBox text="Zaznacz wszystko" style="-fx-text-fill: white; -fx-padding: 15 0 0 0;" />
         </VBox>
 
-        <VBox spacing="15.0" HBox.hgrow="ALWAYS" style="-fx-background-color: #2D2D44; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0);">
+        <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: #2D2D44; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0);">
             <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
-            <Label text="DOSTĘPNE PRZEPISY" style="-fx-text-fill: #BB86FC; -fx-font-weight: bold; -fx-font-size: 12px; -fx-letter-spacing: 1.5;" />
-            <ListView fx:id="recipeList" style="-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-background-insets: 0;" VBox.vgrow="ALWAYS" />
+
+            <Label text="CO MOGĘ UGOTOWAĆ?" style="-fx-text-fill: #CF6679; -fx-font-weight: bold; -fx-font-size: 14px; -fx-letter-spacing: 1.5;" />
+            <Label text="Dania możliwe do zrobienia z Twoich zapasów" style="-fx-text-fill: #A0A0B8; -fx-font-size: 11px;" />
+
+            <Separator opacity="0.1" style="-fx-padding: 15 0 15 0;" />
+
+            <ListView fx:id="smartRecipeList" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-control-inner-background: #1E1E2C;" />
+
+            <Label text="Zaznacz składniki po lewej stronie..." style="-fx-text-fill: #6c6c80; -fx-alignment: center;" maxWidth="Infinity"/>
         </VBox>
+
+        <VBox minWidth="300.0" maxWidth="350.0" style="-fx-background-color: #2D2D44; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0);">
+            <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+
+            <Label text="WSZYSTKIE PRZEPISY" style="-fx-text-fill: #03DAC6; -fx-font-weight: bold; -fx-font-size: 12px; -fx-letter-spacing: 1.5;" />
+
+            <TextField fx:id="searchField" promptText="Szukaj w bazie..."
+                       style="-fx-background-color: #1E1E2C; -fx-text-fill: white; -fx-prompt-text-fill: #6c6c80; -fx-background-radius: 10; -fx-padding: 10;">
+                <VBox.margin><Insets top="10.0" bottom="10.0" /></VBox.margin>
+            </TextField>
+
+            <ListView fx:id="allRecipesList" VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: transparent; -fx-control-inner-background: #1E1E2C; -fx-background-insets: 0;" />
+        </VBox>
+
     </HBox>
 </VBox>
