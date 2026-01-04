@@ -84,4 +84,25 @@ public class RecipeDao {
         }
         return recipes;
     }
+
+    public List<String> getAllIngredientNames() {
+        //lista składników
+        List<String> names = new ArrayList<>();
+        //pobieranie z bazy danych
+        String sql = "SELECT name FROM ingredients ORDER BY name";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            //pobieranie nazw składników
+            while (rs.next()) {
+                names.add(rs.getString("name"));
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Błąd pobierania nazw składników: " + e.getMessage());
+        }
+        return names;
+    }
 }

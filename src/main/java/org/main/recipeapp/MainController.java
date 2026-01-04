@@ -6,19 +6,22 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.main.recipeapp.dao.RecipeDao;
 import org.main.recipeapp.model.Recipe;
 
 import java.io.IOException;
+import java.util.List;
 
 public class MainController {
 
     // --- LEWA KOLUMNA (Spiżarnia) ---
-    // do dodania
+    public VBox ingredientsContainer;
 
     // --- ŚRODKOWA KOLUMNA (Smart Lista) ---
     @FXML private ListView<Recipe> smartRecipeList;
@@ -32,6 +35,10 @@ public class MainController {
 
     @FXML
     public void initialize() {
+
+        // konfiguracje lewej kolumny
+        loadIngredientsCheckboxes();
+
         // konfiguracja prawej kolumny (baza wszystkich przepisów)
         allRecipesList.setItems(allRecipesObservable);
         loadRecipes(""); // Załaduj wszystko na start
@@ -83,8 +90,19 @@ public class MainController {
 
             // Odśwież prawą kolumnę po dodaniu
             loadRecipes(searchField.getText());
+            // odśwież listę składników po lewej
+            loadIngredientsCheckboxes();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void loadIngredientsCheckboxes() {
+        ingredientsContainer.getChildren().clear();
+        List<String> ingredientNames = recipeDao.getAllIngredientNames();
+        for (String name : ingredientNames) {
+            CheckBox checkBox = new CheckBox(name);
+            ingredientsContainer.getChildren().add(checkBox);
         }
     }
 }
