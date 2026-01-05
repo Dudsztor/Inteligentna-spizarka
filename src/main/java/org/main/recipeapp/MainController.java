@@ -7,9 +7,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.main.recipeapp.dao.PantryDao;
 import org.main.recipeapp.dao.RecipeDao;
+import org.main.recipeapp.model.PantryItem;
 import org.main.recipeapp.model.Recipe;
 
 import java.io.IOException;
@@ -18,7 +22,9 @@ import java.util.List;
 public class MainController {
 
     // --- LEWA KOLUMNA (Spiżarnia) ---
-    public VBox ingredientsContainer;
+    public VBox pantryContainer;
+    @FXML private ComboBox<String> pantryInput;
+    @FXML private TextField quantityInput;
 
     // --- ŚRODKOWA KOLUMNA (Smart Lista) ---
     @FXML private ListView<Recipe> smartRecipeList;
@@ -28,12 +34,25 @@ public class MainController {
     @FXML private ListView<Recipe> allRecipesList;
 
     private RecipeDao recipeDao = new RecipeDao();
+    private PantryDao pantryDao = new PantryDao();
+
     private ObservableList<Recipe> allRecipesObservable = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
 
         // konfiguracje lewej kolumny
+        List<String> validIngredients = recipeDao.getAllIngredientNames();
+        pantryInput.getItems().addAll(validIngredients);
+        new AutoCompleteListener<>(pantryInput);
+
+        // pozwolenie na cyfry i jedną kropkę -> jeśli nowy napis zawiera literę to zostawia stary napis
+        quantityInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                quantityInput.setText(oldValue);
+            }
+        });
+
         refreshAll();
 
         // konfiguracja prawej kolumny (baza wszystkich przepisów)
@@ -93,14 +112,36 @@ public class MainController {
     }
 
     // refreshowanie checkboxów po lewej
-    private void refreshIngredientsCheckboxes() {
-        //czyści pudełko
-        ingredientsContainer.getChildren().clear();
-        List<String> ingredientNames = recipeDao.getAllIngredientNames();
-        //wypełnia pudełko
-        for (String name : ingredientNames) {
-            CheckBox checkBox = new CheckBox(name);
-            ingredientsContainer.getChildren().add(checkBox);
+    private void refreshPantryList() {
+        pantryContainer.getChildren().clear();
+
+        // pobieramy listę obiektów z pantryDao - nazwa + ilość
+        List<PantryItem> myItems = pantryDao.getPantryItems();
+
+        // tworzenie listy pod spodem - napis po lewej, przycisk X po prawej
+        for (PantryItem item : myItems) {
+            HBox row = new HBox();
+            row.setSpacing(10);
+            row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            row.setStyle("-fx-padding: 5; -fx-background-color: #363649; -fx-background-radius: 5;");
+
+            // tekst składnika
+            Label infoLabel = new Label(item.toString());
+            infoLabel.setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
+            infoLabel.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(infoLabel, Priority.ALWAYS);
+
+            // przycisk usuwania
+            Button removeBtn = new Button("X");
+            removeBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #FF5555; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 0 5 0 5;");
+            removeBtn.setOnAction(e -> {
+                pantryDao.removeFromPantry(item.getName());
+                refreshPantryList();
+            });
+
+            // dodaje wiersz z nazwą i przyciskiem
+            row.getChildren().addAll(infoLabel, removeBtn);
+            pantryContainer.getChildren().add(row);
         }
     }
 
@@ -114,7 +155,7 @@ public class MainController {
         //odświeżenie kolumny prawej
         refreshRecipesList();
         //odświeżenie kolumny lewej
-        refreshIngredientsCheckboxes();
+        refreshPantryList();
     }
 
     //usuwanie przepisu
@@ -147,5 +188,37 @@ public class MainController {
                 refreshAll();
             }
         });
+    }
+
+    //dodawanie składnika - przycisk
+    @FXML
+    private void onAddPantryItem() {
+        // pobieranie napisu
+        String name = pantryInput.getEditor().getText();
+        String quantity = quantityInput.getText();
+
+        // jeśli napis nie jest pusty ani nie jest spacją
+        if (name != null && !name.trim().isEmpty()) {
+            // jeśli ilość składników jest pusta to zastępuje ---
+            if (quantity == null || quantity.trim().isEmpty()) quantity = "---";
+
+            // sprawdzamy czy się dodało
+            boolean success = pantryDao.addIngredientToPantryStrict(name, quantity);
+
+            // jeśli się dodało to czyścimy pola
+            if (success) {
+                pantryInput.getEditor().clear();
+                pantryInput.setValue(null);
+                quantityInput.clear();
+                refreshPantryList();
+            } else {
+                // jeśli jest błąd to jest błąd
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Błąd");
+                alert.setHeaderText("Nieznany składnik");
+                alert.setContentText("Składnik '" + name + "' nie znajduje się w naszej bazie danych.\nWybierz składnik z listy podpowiedzi.");
+                alert.showAndWait();
+            }
+        }
     }
 }

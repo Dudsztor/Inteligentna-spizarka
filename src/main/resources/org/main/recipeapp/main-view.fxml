@@ -26,10 +26,25 @@
         <VBox minWidth="280.0" style="-fx-background-color: #2D2D44; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0);">
             <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
             <Label text="TWOJE SKŁADNIKI" style="-fx-text-fill: #BB86FC; -fx-font-weight: bold; -fx-font-size: 12px; -fx-letter-spacing: 1.5;" />
-            <Separator opacity="0.1" style="-fx-padding: 15 0 15 0;" />
+
+            <VBox spacing="8.0">
+                <HBox spacing="5.0">
+                    <ComboBox fx:id="pantryInput" promptText="Wpisz nazwę..." HBox.hgrow="ALWAYS" editable="true"
+                              style="-fx-background-color: #1E1E2C; -fx-control-inner-background: #1E1E2C; -fx-text-base-color: white; -fx-prompt-text-fill: gray;" />
+
+                    <TextField fx:id="quantityInput" promptText="Ile? (np. 5)" prefWidth="90.0"
+                               style="-fx-background-color: #1E1E2C; -fx-text-fill: white; -fx-prompt-text-fill: gray; -fx-background-radius: 5;"/>
+                </HBox>
+
+                <Button text="Dodaj do spiżarni" onAction="#onAddPantryItem" maxWidth="Infinity"
+                        style="-fx-background-color: #BB86FC; -fx-text-fill: #1E1E2C; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
+                <VBox.margin><Insets top="10.0" bottom="10.0" /></VBox.margin>
+            </VBox>
+
+            <Separator opacity="0.1" style="-fx-padding: 0 0 10 0;" />
 
             <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
-                <VBox fx:id="ingredientsContainer" spacing="10.0" />
+                <VBox fx:id="pantryContainer" spacing="8.0" />
             </ScrollPane>
         </VBox>
 
