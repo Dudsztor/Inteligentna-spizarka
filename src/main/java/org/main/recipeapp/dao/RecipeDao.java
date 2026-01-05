@@ -85,6 +85,7 @@ public class RecipeDao {
         return recipes;
     }
 
+    // zdobywanie nazwy wszystkich składników z bazy danych
     public List<String> getAllIngredientNames() {
         //lista składników
         List<String> names = new ArrayList<>();
@@ -104,5 +105,38 @@ public class RecipeDao {
             System.out.println("Błąd pobierania nazw składników: " + e.getMessage());
         }
         return names;
+    }
+
+    //usuwanie przepisu
+    public void deleteRecipe(int recipeId){
+        String sqlDeleteIngredients = "DELETE FROM recipe_ingredients WHERE recipe_id = " + recipeId;
+        String sqlDeleteRecipe = "DELETE FROM recipes WHERE id = " + recipeId;
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            //rozpoczęcie transakcji
+            conn.setAutoCommit(false);
+
+            try {
+                //usuwamy składniki
+                stmt.executeUpdate(sqlDeleteIngredients);
+                //usuwamy przepisy
+                stmt.executeUpdate(sqlDeleteRecipe);
+
+                conn.commit();
+                System.out.println("Usunięto przepis o ID: " + recipeId);
+
+            } catch (SQLException e) {
+                //cofanie zmian w razie błędu
+                conn.rollback();
+                System.out.println("Błąd podczas transakcji: " + e.getMessage());
+            } finally {
+                //w każdym wypadku wracamy na koniec transakcji
+                conn.setAutoCommit(true);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Błąd podczas usuwania przepisu: " + e.getMessage());
+        }
     }
 }

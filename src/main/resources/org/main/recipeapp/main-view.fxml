@@ -58,7 +58,15 @@
 
             <ListView fx:id="allRecipesList" VBox.vgrow="ALWAYS"
                       style="-fx-background-color: transparent; -fx-control-inner-background: #1E1E2C; -fx-background-insets: 0;" />
+
+            <Button text="Usuń zaznaczony" onAction="#onDeleteRecipeClick"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: #CF6679; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-margin: 10 0 0 0;">
+                <VBox.margin><Insets top="15.0" /></VBox.margin>
+            </Button>
+
         </VBox>
+
 
     </HBox>
 </VBox>

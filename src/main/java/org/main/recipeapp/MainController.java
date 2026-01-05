@@ -6,10 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.main.recipeapp.dao.RecipeDao;
@@ -37,7 +34,7 @@ public class MainController {
     public void initialize() {
 
         // konfiguracje lewej kolumny
-        loadIngredientsCheckboxes();
+        refreshAll();
 
         // konfiguracja prawej kolumny (baza wszystkich przepisów)
         allRecipesList.setItems(allRecipesObservable);
@@ -88,21 +85,67 @@ public class MainController {
             stage.setScene(new Scene(root));
             stage.showAndWait();
 
-            // Odśwież prawą kolumnę po dodaniu
-            loadRecipes(searchField.getText());
-            // odśwież listę składników po lewej
-            loadIngredientsCheckboxes();
+            //odświeża wszystko
+            refreshAll();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void loadIngredientsCheckboxes() {
+    // refreshowanie checkboxów po lewej
+    private void refreshIngredientsCheckboxes() {
+        //czyści pudełko
         ingredientsContainer.getChildren().clear();
         List<String> ingredientNames = recipeDao.getAllIngredientNames();
+        //wypełnia pudełko
         for (String name : ingredientNames) {
             CheckBox checkBox = new CheckBox(name);
             ingredientsContainer.getChildren().add(checkBox);
         }
+    }
+
+    // refreshowanie przepisów
+    private void refreshRecipesList() {
+        String currentQuery = searchField.getText();
+        loadRecipes(currentQuery);
+    }
+
+    private void refreshAll(){
+        //odświeżenie kolumny prawej
+        refreshRecipesList();
+        //odświeżenie kolumny lewej
+        refreshIngredientsCheckboxes();
+    }
+
+    //usuwanie przepisu
+    @FXML
+    protected void onDeleteRecipeClick() {
+        Recipe selectedRecipe = allRecipesList.getSelectionModel().getSelectedItem();
+
+        //sprawdza czy wybraliśmy przepis
+        if (selectedRecipe == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Uwaga");
+            alert.setHeaderText("Błąd");
+            alert.setContentText("Nie wybrano przepisu");
+            alert.showAndWait();
+            return;
+        }
+
+        //upewnienie się że chce się usunąć przepis
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Uwaga");
+        confirmAlert.setHeaderText("Usuwanie przepisu");
+        confirmAlert.setContentText("Czy na pewno chcesz usunąć ten przepis?");
+
+        //potwierdzenie usunięcia
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                recipeDao.deleteRecipe(selectedRecipe.getId());
+
+                //odświeżenie widoku
+                refreshAll();
+            }
+        });
     }
 }
