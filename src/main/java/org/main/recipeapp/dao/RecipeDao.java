@@ -3,7 +3,9 @@ package org.main.recipeapp.dao;
 import org.main.recipeapp.DatabaseConnection;
 import org.main.recipeapp.model.Ingredient;
 import org.main.recipeapp.model.Recipe;
+import org.main.recipeapp.model.RecipeIngredient;
 
+import javax.xml.transform.Result;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,20 +16,97 @@ public class RecipeDao {
     public void insertRecipe(Recipe recipe) {
         String sql = "INSERT INTO recipes(title, description) VALUES(?, ?)";
 
+        // elementy w try to zasoby, które zamkną się po wykonaniu bloku
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, recipe.getTitle());
             pstmt.setString(2, recipe.getDescription());
             pstmt.executeUpdate();
 
-            // tutaj do dodanai logika do zapisywania składników (relacja wiele-do-wielu)
+            // bierzemy ID nowego przepisu
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int newRecipeId = generatedKeys.getInt(1);
+                    insertRecipeIngredients(newRecipeId, recipe.getIngredients(), conn);
+                }
+            }
             System.out.println("Przepis zapisany w bazie danych: " + recipe.getTitle());
-
         } catch (SQLException e) {
             System.out.println("Błąd zapisu przepisu: " + e.getMessage());
         }
     }
+
+    private void insertRecipeIngredients(int recipeId, List<RecipeIngredient> ingredients, Connection conn) throws SQLException {
+        String sql = "INSERT INTO recipe_ingredients(recipe_id, ingredient_id, quantity_needed) " +
+                "VALUES(?, (SELECT id FROM ingredients WHERE lower(name) = lower(?)), ?)";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            for (RecipeIngredient item : ingredients) { // Iterujemy po RecipeIngredient
+                pstmt.setInt(1, recipeId);
+                pstmt.setString(2, item.getName());     // Pobieramy nazwę z wnętrza
+                pstmt.setString(3, item.getQuantity()); // Pobieramy ilość
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+        }
+    }
+
+    public List<Recipe> getDoableRecipes() {
+        List<Recipe> recipes = new ArrayList<>();
+
+        //podwojna negacja 😰
+
+        String sql = "SELECT r.id, r.title, r.description " +
+                     "FROM recipes r " +
+                     "WHERE NOT EXISTS (" +
+                     "  SELECT 1 FROM recipe_ingredients ri " +
+                     "  WHERE ri.recipe_id = r.id " +
+                     "  AND ri.ingredient_id NOT IN (SELECT ingredient_id from pantry)" +
+                     ")";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                //trzeba tu bylo dodac conn w argumentach zeby nie zrywalo polaczenia
+                List<RecipeIngredient> ingredients = getIngredientsForRecipeId(id, conn);
+
+                if (ingredients.isEmpty()) continue;
+
+                recipes.add(new Recipe(id, rs.getString("title"), rs.getString("description"), ingredients));
+            }
+        } catch (SQLException e) {
+            System.out.println("Błąd smart wyszukiwania: " + e.getMessage());
+        }
+        return recipes;
+    }
+
+    private List<RecipeIngredient> getIngredientsForRecipeId(int recipeId, Connection conn) {
+        List<RecipeIngredient> list = new ArrayList<>();
+        String sql = "SELECT i.name, ri.quantity_needed FROM ingredients i " +
+                "JOIN recipe_ingredients ri ON i.id = ri.ingredient_id " +
+                "WHERE ri.recipe_id = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, recipeId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while(rs.next()) {
+                    // skladnik
+                    Ingredient ing = new Ingredient(rs.getString("name"));
+                    // ilosc
+                    String quantity = rs.getString("quantity_needed");
+                    // połaczenie
+                    list.add(new RecipeIngredient(ing, quantity));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
 
     // metoda do pobierania wszystkich przepisów
     public List<Recipe> getAllRecipes() {
@@ -39,14 +118,14 @@ public class RecipeDao {
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                // na razie pusta listę składników, bo ich jeszcze nie pobieramy z bazy
-                List<Ingredient> emptyIngredients = new ArrayList<>();
+                int id = rs.getInt("id");
+                List<RecipeIngredient> ingredients = getIngredientsForRecipeId(id, conn);
 
                 Recipe recipe = new Recipe(
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getString("description"),
-                        emptyIngredients
+                        ingredients
                 );
                 recipes.add(recipe);
             }
@@ -69,13 +148,13 @@ public class RecipeDao {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    // Tu decydujesz: czy pobierasz składniki od razu, czy pustą listę (Lazy Loading).
-                    // Do szybkiej wyszukiwarki pusta lista jest szybsza:
+                    int id = rs.getInt("id");
+                    List<RecipeIngredient> ingredients = getIngredientsForRecipeId(id, conn);
                     recipes.add(new Recipe(
-                            rs.getInt("id"), // Pamiętaj o dodaniu pola ID do klasy Recipe!
+                            id,
                             rs.getString("title"),
                             rs.getString("description"),
-                            new ArrayList<>() // Pusta lista składników na start
+                            ingredients
                     ));
                 }
             }

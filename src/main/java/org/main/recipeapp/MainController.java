@@ -53,8 +53,6 @@ public class MainController {
             }
         });
 
-        refreshAll();
-
         // konfiguracja prawej kolumny (baza wszystkich przepisów)
         allRecipesList.setItems(allRecipesObservable);
         loadRecipes(""); // Załaduj wszystko na start
@@ -66,8 +64,21 @@ public class MainController {
         // ladne wyświetlanie nazw
         setupListViewCellFactory(allRecipesList);
 
-        // tutaj do zrobienia srodkowa kolumna z dostepnymi przepisami
-        // setupListViewCellFactory(smartRecipeList);
+        //lewa kolumna
+        refreshSmartList();
+
+        refreshAll();
+    }
+
+    private void refreshSmartList() {
+        //pobieramy przepis
+        List<Recipe> doable = recipeDao.getDoableRecipes();
+
+        //wyswietlamy
+        smartRecipeList.getItems().setAll(doable);
+
+        //tytul zeby sie wyswietlal
+        setupListViewCellFactory(smartRecipeList);
     }
 
     private void loadRecipes(String query) {
@@ -97,7 +108,7 @@ public class MainController {
     @FXML
     protected void onAddRecipeClick() {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/UI/recipeapp/add-recipe-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/main/recipeapp/add-recipe-view.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             stage.setTitle("Dodaj nowy przepis");
@@ -136,7 +147,8 @@ public class MainController {
             removeBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #FF5555; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 0 5 0 5;");
             removeBtn.setOnAction(e -> {
                 pantryDao.removeFromPantry(item.getName());
-                refreshPantryList();
+
+                refreshAll();
             });
 
             // dodaje wiersz z nazwą i przyciskiem
@@ -156,6 +168,8 @@ public class MainController {
         refreshRecipesList();
         //odświeżenie kolumny lewej
         refreshPantryList();
+        //odswiezanie srodkowej
+        refreshSmartList();
     }
 
     //usuwanie przepisu
@@ -210,7 +224,7 @@ public class MainController {
                 pantryInput.getEditor().clear();
                 pantryInput.setValue(null);
                 quantityInput.clear();
-                refreshPantryList();
+                refreshAll();
             } else {
                 // jeśli jest błąd to jest błąd
                 Alert alert = new Alert(Alert.AlertType.ERROR);
