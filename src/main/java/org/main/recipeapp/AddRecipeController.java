@@ -7,29 +7,39 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.main.recipeapp.dao.RecipeDao;
 import org.main.recipeapp.model.Ingredient;
+import org.main.recipeapp.model.RecipeIngredient;
 import org.main.recipeapp.model.Recipe;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AddRecipeController {
-    @FXML private TextField ingredientInput;
-    @FXML private ListView<String> ingredientsListView;
+    @FXML private ComboBox<String> ingredientInput;
+    @FXML private ListView<RecipeIngredient> ingredientsListView;
+    @FXML private TextField quantityInput;
     @FXML private TextField titleField;
     @FXML private TextArea descField;
 
-    private final ObservableList<String> tempIngredients = FXCollections.observableArrayList();
-
+    private final ObservableList<RecipeIngredient> tempIngredients = FXCollections.observableArrayList();
     private RecipeDao recipeDao = new RecipeDao();
 
     @FXML
     public void initialize() {
         ingredientsListView.setItems(tempIngredients);
 
+        List<String> dbIngredients = recipeDao.getAllIngredientNames();
+        ingredientInput.getItems().addAll(dbIngredients);
+
+        ingredientInput.setEditable(true);
+        ingredientInput.setVisibleRowCount(5);
+        ingredientInput.setPromptText("Wybierz składnik (np. makaron Spaghetti)");
+
+        new AutoCompleteListener<>(ingredientInput);
+
         //usuwanie składnika
         ingredientsListView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
-                String selected = ingredientsListView.getSelectionModel().getSelectedItem();
+                RecipeIngredient selected = ingredientsListView.getSelectionModel().getSelectedItem();
                 if (selected != null) {
                     tempIngredients.remove(selected);
                 }
@@ -40,10 +50,35 @@ public class AddRecipeController {
     //dodawanie nowego składnika
     @FXML
     private void onAddIngredientToList() {
-        String name = ingredientInput.getText().trim();
-        if (!name.isEmpty() && !tempIngredients.contains(name)) {
-            tempIngredients.add(name);
-            ingredientInput.requestFocus();
+        // pobieramy nazwę z ComboBoxa i ilość z pola tekstowego
+        String name = ingredientInput.getEditor().getText().trim();
+        String quantity = quantityInput.getText().trim();
+
+        if (!name.isEmpty()) {
+            // domyślna ilość, jeśli puste
+            if (quantity.isEmpty()) quantity = "---";
+
+            // tworzymy skladnik z sama nazwa
+            Ingredient pureIngredient = new Ingredient(name);
+
+            // twprzymy obiekt laczacy nazwe z iloscia
+            RecipeIngredient item = new RecipeIngredient(pureIngredient, quantity);
+
+            // sprawdzamy czy juz jest dodany
+            boolean exists = tempIngredients.stream()
+                    .anyMatch(i -> i.getName().equalsIgnoreCase(name));
+
+            if (!exists) {
+                tempIngredients.add(item); // dodajemy do listy widocznej na ekranie
+
+                // czyscimy pola
+                ingredientInput.getEditor().clear();
+                ingredientInput.setValue(null);
+                quantityInput.clear();
+
+                // ustawiamy kursor z powrotem na nazwę
+                ingredientInput.requestFocus();
+            }
         }
     }
 
@@ -53,26 +88,32 @@ public class AddRecipeController {
         String title = titleField.getText().trim(); // pobieranie tekstu z pola
         String description = descField.getText().trim();     // pobieranie opisu z pola
 
-        List<Ingredient> ingredientsList = new ArrayList<>();
-
-        for (String ingredientName : tempIngredients) {
-            // Tworzymy obiekt Ingredient używając jego konstruktora
-            ingredientsList.add(new Ingredient(ingredientName));
+        if (title.isEmpty()) {
+            showAlert("Brak tytułu", "Podaj nazwę przepisu.");
+            return;
         }
 
-        Recipe newRecipe = new Recipe(title, description, ingredientsList);
+        if (tempIngredients.isEmpty()) {
+            showAlert("Brak składników", "Dodaj przynajmniej jeden składnik.");
+            return;
+        }
 
-        // Zapisujemy do bazy zamiast do pamięci RAM
+        List<RecipeIngredient> finalIngredients = new ArrayList<>(tempIngredients);
+
+        Recipe newRecipe = new Recipe(title, description, finalIngredients);
+
         recipeDao.insertRecipe(newRecipe);
 
-        System.out.println("Zapisano przepis w bazie danych SQLite!");
-
-        // Opcjonalnie: wyczyść pola formularza po zapisie
-        tempIngredients.clear();
-        ingredientInput.clear();
-
-        //zamykanie okna po zapisie
+        // Zamknięcie okna
         Stage stage = (Stage) titleField.getScene().getWindow();
         stage.close();
+    }
+
+    private void showAlert(String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Uwaga");
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

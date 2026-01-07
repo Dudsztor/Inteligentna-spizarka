@@ -3,6 +3,7 @@ package org.main.recipeapp.dao;
 import org.main.recipeapp.DatabaseConnection;
 import org.main.recipeapp.model.Ingredient;
 import org.main.recipeapp.model.Recipe;
+import org.main.recipeapp.model.RecipeIngredient;
 
 import javax.xml.transform.Result;
 import java.sql.*;
@@ -36,20 +37,18 @@ public class RecipeDao {
         }
     }
 
-    private void insertRecipeIngredients(int recipeId, List<Ingredient> ingredients, Connection conn) throws SQLException {
-        String sql = "INSERT INTO recipe_ingredients(recipe_id, ingredient) " +
-                "VALUES(?, (SELECT id FROM ingredients WHERE lower(name) = lower(?)))";
+    private void insertRecipeIngredients(int recipeId, List<RecipeIngredient> ingredients, Connection conn) throws SQLException {
+        String sql = "INSERT INTO recipe_ingredients(recipe_id, ingredient_id, quantity_needed) " +
+                "VALUES(?, (SELECT id FROM ingredients WHERE lower(name) = lower(?)), ?)";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            for (Ingredient ing : ingredients) {
+            for (RecipeIngredient item : ingredients) { // Iterujemy po RecipeIngredient
                 pstmt.setInt(1, recipeId);
-                pstmt.setString(2, ing.getName());
-                pstmt.addBatch(); //dodajemy do kolejki
+                pstmt.setString(2, item.getName());     // Pobieramy nazwę z wnętrza
+                pstmt.setString(3, item.getQuantity()); // Pobieramy ilość
+                pstmt.addBatch();
             }
             pstmt.executeBatch();
-        } catch (SQLException e) {
-            System.out.println("Błąd zapisu składników przepisu: " + e.getMessage());
         }
     }
 
@@ -73,7 +72,7 @@ public class RecipeDao {
             while (rs.next()) {
                 int id = rs.getInt("id");
                 //trzeba tu bylo dodac conn w argumentach zeby nie zrywalo polaczenia
-                List<Ingredient> ingredients = getIngredientsForRecipeId(id, conn);
+                List<RecipeIngredient> ingredients = getIngredientsForRecipeId(id, conn);
 
                 if (ingredients.isEmpty()) continue;
 
@@ -85,16 +84,21 @@ public class RecipeDao {
         return recipes;
     }
 
-    private List<Ingredient> getIngredientsForRecipeId(int recipeId, Connection conn) {
-        List<Ingredient> list = new ArrayList<>();
-        String sql = "SELECT i.name FROM ingredients i " +
+    private List<RecipeIngredient> getIngredientsForRecipeId(int recipeId, Connection conn) {
+        List<RecipeIngredient> list = new ArrayList<>();
+        String sql = "SELECT i.name, ri.quantity_needed FROM ingredients i " +
                 "JOIN recipe_ingredients ri ON i.id = ri.ingredient_id " +
                 "WHERE ri.recipe_id = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, recipeId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while(rs.next()) {
-                    list.add(new Ingredient(rs.getString("name")));
+                    // skladnik
+                    Ingredient ing = new Ingredient(rs.getString("name"));
+                    // ilosc
+                    String quantity = rs.getString("quantity_needed");
+                    // połaczenie
+                    list.add(new RecipeIngredient(ing, quantity));
                 }
             }
         } catch (SQLException e) {
@@ -115,13 +119,13 @@ public class RecipeDao {
 
             while (rs.next()) {
                 int id = rs.getInt("id");
-                List<Ingredient> emptyIngredients = getIngredientsForRecipeId(id, conn);
+                List<RecipeIngredient> ingredients = getIngredientsForRecipeId(id, conn);
 
                 Recipe recipe = new Recipe(
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getString("description"),
-                        emptyIngredients
+                        ingredients
                 );
                 recipes.add(recipe);
             }
@@ -145,7 +149,7 @@ public class RecipeDao {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     int id = rs.getInt("id");
-                    List<Ingredient> ingredients = getIngredientsForRecipeId(id, conn);
+                    List<RecipeIngredient> ingredients = getIngredientsForRecipeId(id, conn);
                     recipes.add(new Recipe(
                             id,
                             rs.getString("title"),
