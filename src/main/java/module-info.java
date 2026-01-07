@@ -3,6 +3,7 @@ module org.main.recipeapp {
     requires javafx.fxml;
     requires java.desktop;
     requires java.sql;
+    requires junit;
 
 
     opens org.main.recipeapp to javafx.fxml;
