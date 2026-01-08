@@ -81,7 +81,7 @@ public class PantryDao implements IPantryDao {
     }
 
     // zdobywanie id dzięki nazwę składnika
-    private int getIngredientIdByName(String name) {
+    public int getIngredientIdByName(String name) {
 
         String sql = "SELECT id FROM ingredients WHERE lower(name) = lower(?)";
 

@@ -51,13 +51,6 @@ public class MainController {
         pantryInput.getItems().addAll(validIngredients);
         new AutoCompleteListener<>(pantryInput);
 
-        // pozwolenie na cyfry i jedną kropkę -> jeśli nowy napis zawiera literę to zostawia stary napis
-        quantityInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*(\\.\\d*)?")) {
-                quantityInput.setText(oldValue);
-            }
-        });
-
         // konfiguracja prawej kolumny (baza wszystkich przepisów)
         allRecipesList.setItems(allRecipesObservable);
         loadRecipes(""); // Załaduj wszystko na start

@@ -28,7 +28,7 @@ public class RecipeDao implements IRecipeDao {
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     int newRecipeId = generatedKeys.getInt(1);
-                    insertRecipeIngredients(newRecipeId, recipe.getIngredients(), conn);
+                    insertRecipeIngredientsInternal(newRecipeId, recipe.getIngredients(), conn);
                 }
             }
             System.out.println("Przepis zapisany w bazie danych: " + recipe.getTitle());
@@ -37,7 +37,17 @@ public class RecipeDao implements IRecipeDao {
         }
     }
 
-    private void insertRecipeIngredients(int recipeId, List<RecipeIngredient> ingredients, Connection conn) throws SQLException {
+    @Override
+    public void insertRecipeIngredients(int recipeId, List<RecipeIngredient> ingredients) {
+        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
+            // wywołujemy metodę ale pokazując jej połączenie
+            insertRecipeIngredientsInternal(recipeId, ingredients, conn);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void insertRecipeIngredientsInternal(int recipeId, List<RecipeIngredient> ingredients, Connection conn) throws SQLException {
         String sql = "INSERT INTO recipe_ingredients(recipe_id, ingredient_id, quantity_needed) " +
                 "VALUES(?, (SELECT id FROM ingredients WHERE lower(name) = lower(?)), ?)";
 
@@ -71,8 +81,8 @@ public class RecipeDao implements IRecipeDao {
 
             while (rs.next()) {
                 int id = rs.getInt("id");
-                //trzeba tu bylo dodac conn w argumentach zeby nie zrywalo polaczenia
-                List<RecipeIngredient> ingredients = getIngredientsForRecipeId(id, conn);
+
+                List<RecipeIngredient> ingredients = getIngredientsForRecipeIdInternal(id, conn);
 
                 if (ingredients.isEmpty()) continue;
 
@@ -84,7 +94,17 @@ public class RecipeDao implements IRecipeDao {
         return recipes;
     }
 
-    private List<RecipeIngredient> getIngredientsForRecipeId(int recipeId, Connection conn) {
+    @Override
+    public List<RecipeIngredient> getIngredientsForRecipeId(int recipeId) {
+        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
+            return getIngredientsForRecipeIdInternal(recipeId, conn);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    private List<RecipeIngredient> getIngredientsForRecipeIdInternal(int recipeId, Connection conn) {
         List<RecipeIngredient> list = new ArrayList<>();
         String sql = "SELECT i.name, ri.quantity_needed FROM ingredients i " +
                 "JOIN recipe_ingredients ri ON i.id = ri.ingredient_id " +
@@ -119,7 +139,7 @@ public class RecipeDao implements IRecipeDao {
 
             while (rs.next()) {
                 int id = rs.getInt("id");
-                List<RecipeIngredient> ingredients = getIngredientsForRecipeId(id, conn);
+                List<RecipeIngredient> ingredients = getIngredientsForRecipeIdInternal(id, conn);
 
                 Recipe recipe = new Recipe(
                         rs.getInt("id"),
@@ -149,7 +169,7 @@ public class RecipeDao implements IRecipeDao {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     int id = rs.getInt("id");
-                    List<RecipeIngredient> ingredients = getIngredientsForRecipeId(id, conn);
+                    List<RecipeIngredient> ingredients = getIngredientsForRecipeIdInternal(id, conn);
                     recipes.add(new Recipe(
                             id,
                             rs.getString("title"),

@@ -7,4 +7,5 @@ public interface IPantryDao {
     List<PantryItem> getPantryItems();
     boolean addIngredientToPantryStrict(String name, String quantity);
     void removeFromPantry(int ingredientId);
+    int getIngredientIdByName(String name);
 }
