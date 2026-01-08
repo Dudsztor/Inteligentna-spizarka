@@ -3,6 +3,8 @@ package org.main.recipeapp.dao;
 import org.main.recipeapp.DatabaseConnection;
 import org.main.recipeapp.model.Ingredient;
 import org.main.recipeapp.model.PantryItem;
+import org.main.recipeapp.model.Recipe;
+import org.main.recipeapp.model.RecipeIngredient;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -97,4 +99,46 @@ public class PantryDao implements IPantryDao {
         }
         return -1;
     }
+    public void cookRecipe(Recipe recipe) {
+        // zmniejsza ilość albo usuwa
+        String updateSql = "UPDATE pantry SET quantity = quantity - ? WHERE ingredient_id = ?";
+        String deleteSql = "DELETE FROM pantry WHERE quantity <= 0";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
+
+            // transakcja
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+
+                for (RecipeIngredient ri : recipe.getIngredients()) {
+                    updateStmt.setDouble(1, ri.getQuantity());
+                    updateStmt.setInt(2, ri.getIngredient().getId());
+
+                    updateStmt.addBatch();
+                }
+
+                updateStmt.executeBatch();
+
+                // usuwamy puste
+                try (Statement deleteStmt = conn.createStatement()) {
+                    deleteStmt.executeUpdate(deleteSql);
+                }
+
+                // zatwierdzanie transakcji
+                conn.commit();
+
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Błąd transakcji: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                conn.setAutoCommit(true);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

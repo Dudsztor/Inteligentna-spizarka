@@ -39,7 +39,7 @@
                 <ComboBox fx:id="ingredientInput" promptText="Wybierz składnik..." HBox.hgrow="ALWAYS" maxWidth="Infinity"
                           style="-fx-background-color: #2D2D44; -fx-mark-color: #BB86FC; -fx-text-base-color: white; -fx-background-radius: 5; -fx-font-size: 13px;" />
 
-                <TextField fx:id="quantityInput" promptText="Ilość (np. 200g)" prefWidth="130.0"
+                <TextField fx:id="quantityInput" promptText="Ilość (np. 0.2)" prefWidth="130.0"
                            style="-fx-background-color: #2D2D44; -fx-text-fill: white; -fx-prompt-text-fill: #555570; -fx-background-radius: 5; -fx-padding: 10;" />
 
                 <Button onAction="#onAddIngredientToList" text="+"
