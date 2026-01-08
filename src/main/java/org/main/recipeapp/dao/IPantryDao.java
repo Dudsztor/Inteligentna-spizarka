@@ -1,6 +1,8 @@
 package org.main.recipeapp.dao;
 
 import org.main.recipeapp.model.PantryItem;
+import org.main.recipeapp.model.Recipe;
+
 import java.util.List;
 
 public interface IPantryDao {
@@ -8,4 +10,5 @@ public interface IPantryDao {
     boolean addIngredientToPantryStrict(String name, Double quantity);
     void removeFromPantry(int ingredientId);
     int getIngredientIdByName(String name);
+    void cookRecipe(Recipe recipe);
 }

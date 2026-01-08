@@ -67,13 +67,21 @@ public class RecipeDao implements IRecipeDao {
 
         //podwojna negacja 😰
 
-        String sql = "SELECT r.id, r.title, r.description " +
-                     "FROM recipes r " +
-                     "WHERE NOT EXISTS (" +
-                     "  SELECT 1 FROM recipe_ingredients ri " +
-                     "  WHERE ri.recipe_id = r.id " +
-                     "  AND ri.ingredient_id NOT IN (SELECT ingredient_id from pantry)" +
-                     ")";
+        String sql = """
+            SELECT r.id, r.title, r.description
+            FROM recipes r
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM recipe_ingredients ri
+                LEFT JOIN pantry p ON ri.ingredient_id = p.ingredient_id
+                WHERE ri.recipe_id = r.id
+                AND (
+                    p.ingredient_id IS NULL 
+                    OR 
+                    p.quantity < ri.quantity_needed
+                )
+            )
+        """;
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              Statement stmt = conn.createStatement();
@@ -106,17 +114,21 @@ public class RecipeDao implements IRecipeDao {
 
     private List<RecipeIngredient> getIngredientsForRecipeIdInternal(int recipeId, Connection conn) {
         List<RecipeIngredient> list = new ArrayList<>();
-        String sql = "SELECT i.name, ri.quantity_needed FROM ingredients i " +
+        String sql = "SELECT i.id, i.name, ri.quantity_needed FROM ingredients i " +
                 "JOIN recipe_ingredients ri ON i.id = ri.ingredient_id " +
                 "WHERE ri.recipe_id = ?";
+
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, recipeId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while(rs.next()) {
+                    int id = rs.getInt("id");
+                    String name = rs.getString("name");
+                    Ingredient ing = new Ingredient(id, name);
+
                     // skladnik
-                    Ingredient ing = new Ingredient(rs.getString("name"));
-                    // ilosc
-                    Double quantity = rs.getDouble("quantity_needed");
+                    double quantity = rs.getDouble("quantity_needed");
+
                     // połaczenie
                     list.add(new RecipeIngredient(ing, quantity));
                 }
