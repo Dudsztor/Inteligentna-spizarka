@@ -1,10 +1,11 @@
-package org.main.recipeapp;
+package org.main.recipeapp.controllers;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import org.main.recipeapp.AutoCompleteListener;
 import org.main.recipeapp.dao.RecipeDao;
 import org.main.recipeapp.model.Ingredient;
 import org.main.recipeapp.model.RecipeIngredient;
@@ -55,11 +56,24 @@ public class AddRecipeController {
         String quantity = quantityInput.getText().trim();
 
         if (!name.isEmpty()) {
+
+            // filtrowanie naszej listy składników i czy tam istnieje składnik o nazwie name
+            String dbName = ingredientInput.getItems().stream()
+                    .filter(existingName -> existingName.equalsIgnoreCase(name))
+                    .findFirst()
+                    .orElse(null);
+
+            // jeśli nie znalazło w bazie naszego składnika
+            if (dbName == null) {
+                showAlert("Nieznany składnik", "Składnik '" + name + "' nie istnieje w bazie danych.\nWybierz poprawny składnik z listy.");
+                return;
+            }
+
             // domyślna ilość, jeśli puste
             if (quantity.isEmpty()) quantity = "---";
 
             // tworzymy skladnik z sama nazwa
-            Ingredient pureIngredient = new Ingredient(name);
+            Ingredient pureIngredient = new Ingredient(dbName);
 
             // twprzymy obiekt laczacy nazwe z iloscia
             RecipeIngredient item = new RecipeIngredient(pureIngredient, quantity);

@@ -8,4 +8,6 @@ module org.main.recipeapp {
 
     opens org.main.recipeapp to javafx.fxml;
     exports org.main.recipeapp;
+    exports org.main.recipeapp.controllers;
+    opens org.main.recipeapp.controllers to javafx.fxml;
 }

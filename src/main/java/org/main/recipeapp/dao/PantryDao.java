@@ -1,18 +1,19 @@
 package org.main.recipeapp.dao;
 
 import org.main.recipeapp.DatabaseConnection;
+import org.main.recipeapp.model.Ingredient;
 import org.main.recipeapp.model.PantryItem;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PantryDao {
+public class PantryDao implements IPantryDao {
 
     // pobieranie zawartości spiżarni
     public List<PantryItem> getPantryItems() {
         List<PantryItem> list = new ArrayList<>();
-        String sql = "SELECT i.name, p.quantity FROM ingredients i JOIN pantry p ON i.id = p.ingredient_id ORDER BY i.name";
+        String sql = "SELECT i.id, i.name, p.quantity FROM ingredients i JOIN pantry p ON i.id = p.ingredient_id ORDER BY i.name";
 
         // połączenie z bazą
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -21,10 +22,13 @@ public class PantryDao {
 
             // dopóki są kolejne składniki to dodaje
             while (rs.next()) {
-                list.add(new PantryItem(
-                        rs.getString("name"),
-                        rs.getString("quantity")
-                ));
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String quantity = rs.getString("quantity");
+
+                Ingredient ingredient = new Ingredient(id, name);
+
+                list.add(new PantryItem(ingredient, quantity));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -61,15 +65,15 @@ public class PantryDao {
     }
 
     // usuwanie ze spiżarni
-    public void removeFromPantry(String ingredientName) {
+    public void removeFromPantry(int ingredientId) {
 
-        String sql = "DELETE FROM pantry WHERE ingredient_id = (SELECT id FROM ingredients WHERE lower(name) = ?)";
+        String sql = "DELETE FROM pantry WHERE ingredient_id = ?";
 
         // połączenie z bazą
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             // na miejsce pytajnika daje nazwę składnika
-            pstmt.setString(1, ingredientName.trim().toLowerCase());
+            pstmt.setInt(1, ingredientId);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

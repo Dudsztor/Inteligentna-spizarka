@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="15.0" style="-fx-background-color: #1E1E2C;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.main.recipeapp.controllers.RecipeDetailController" prefWidth="500.0" prefHeight="600.0">
+
+    <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
+
+    <Label fx:id="titleLabel" text="Tytuł Przepisu" wrapText="true"
+           style="-fx-text-fill: #BB86FC; -fx-font-weight: bold; -fx-font-size: 24px;"/>
+
+    <Separator opacity="0.2"/>
+
+    <Label text="POTRZEBNE SKŁADNIKI:" style="-fx-text-fill: #03DAC6; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+
+    <ListView fx:id="ingredientsList" prefHeight="200.0"
+              style="-fx-background-color: #2D2D44; -fx-control-inner-background: #2D2D44; -fx-background-radius: 10; -fx-border-color: transparent;"/>
+
+    <Separator opacity="0.2"/>
+
+    <Label text="INSTRUKCJA PRZYGOTOWANIA:" style="-fx-text-fill: #03DAC6; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+
+    <TextArea fx:id="descriptionArea" VBox.vgrow="ALWAYS" wrapText="true" editable="false"
+              style="-fx-control-inner-background: #2D2D44; -fx-text-fill: white; -fx-background-color: #2D2D44; -fx-background-radius: 10;"/>
+
+    <HBox alignment="CENTER_RIGHT">
+        <Button text="Zamknij" onAction="#onClose"
+                style="-fx-background-color: #CF6679; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 8;">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+        </Button>
+    </HBox>
+
+</VBox>

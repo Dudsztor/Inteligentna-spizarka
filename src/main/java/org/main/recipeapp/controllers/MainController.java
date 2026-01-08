@@ -1,4 +1,4 @@
-package org.main.recipeapp;
+package org.main.recipeapp.controllers;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,6 +11,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.main.recipeapp.AutoCompleteListener;
+import org.main.recipeapp.dao.IPantryDao;
+import org.main.recipeapp.dao.IRecipeDao;
 import org.main.recipeapp.dao.PantryDao;
 import org.main.recipeapp.dao.RecipeDao;
 import org.main.recipeapp.model.PantryItem;
@@ -33,13 +36,15 @@ public class MainController {
     @FXML private TextField searchField;
     @FXML private ListView<Recipe> allRecipesList;
 
-    private RecipeDao recipeDao = new RecipeDao();
-    private PantryDao pantryDao = new PantryDao();
+    private IRecipeDao recipeDao;
+    private IPantryDao pantryDao;
 
     private ObservableList<Recipe> allRecipesObservable = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
+        this.recipeDao = new RecipeDao();
+        this.pantryDao = new PantryDao();
 
         // konfiguracje lewej kolumny
         List<String> validIngredients = recipeDao.getAllIngredientNames();
@@ -66,6 +71,19 @@ public class MainController {
 
         //lewa kolumna
         refreshSmartList();
+
+        allRecipesList.setItems(allRecipesObservable);
+        setupListViewCellFactory(allRecipesList); // metoda do pokazywania komórek
+
+        // sprawdzanie czy się klikło dwa razy na przepis
+        allRecipesList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Recipe selected = allRecipesList.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    openRecipeDetails(selected);
+                }
+            }
+        });
 
         refreshAll();
     }
@@ -146,7 +164,8 @@ public class MainController {
             Button removeBtn = new Button("X");
             removeBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #FF5555; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 0 5 0 5;");
             removeBtn.setOnAction(e -> {
-                pantryDao.removeFromPantry(item.getName());
+                int idToDelete = item.getIngredient().getId();
+                pantryDao.removeFromPantry(idToDelete);
 
                 refreshAll();
             });
@@ -233,6 +252,29 @@ public class MainController {
                 alert.setContentText("Składnik '" + name + "' nie znajduje się w naszej bazie danych.\nWybierz składnik z listy podpowiedzi.");
                 alert.showAndWait();
             }
+        }
+    }
+
+    // otwieranie składnika
+    private void openRecipeDetails(Recipe recipe) {
+        try {
+            //otwiera plik fxml
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/main/recipeapp/recipe-detail-view.fxml"));
+            Parent root = loader.load();
+
+            // pobieramy kontroler
+            RecipeDetailController controller = loader.getController();
+            // pokazujemy przepis kontrolerowi
+            controller.setRecipeData(recipe);
+
+            Stage stage = new Stage();
+            stage.setTitle(recipe.getTitle());
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Nie udało się otworzyć szczegółów przepisu.");
         }
     }
 }

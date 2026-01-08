@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:controller="org.main.recipeapp.AddRecipeController"
+<VBox fx:controller="org.main.recipeapp.controllers.AddRecipeController"
       prefWidth="500.0" spacing="20.0"
       style="-fx-background-color: #1E1E2C;"
       xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">

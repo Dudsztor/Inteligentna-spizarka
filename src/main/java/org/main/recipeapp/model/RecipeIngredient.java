@@ -9,7 +9,7 @@ public class RecipeIngredient {
         this.quantity = quantity;
     }
 
-    public Ingredient getIngredients() { return ingredient; }
+    public Ingredient getIngredient() { return ingredient; }
     public String getQuantity() { return quantity; }
     public String getName() { return ingredient.getName(); }
 
