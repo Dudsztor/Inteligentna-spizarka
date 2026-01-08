@@ -55,7 +55,7 @@ public class RecipeDao implements IRecipeDao {
             for (RecipeIngredient item : ingredients) { // Iterujemy po RecipeIngredient
                 pstmt.setInt(1, recipeId);
                 pstmt.setString(2, item.getName());     // Pobieramy nazwę z wnętrza
-                pstmt.setString(3, item.getQuantity()); // Pobieramy ilość
+                pstmt.setDouble(3, item.getQuantity()); // Pobieramy ilość
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
@@ -116,7 +116,7 @@ public class RecipeDao implements IRecipeDao {
                     // skladnik
                     Ingredient ing = new Ingredient(rs.getString("name"));
                     // ilosc
-                    String quantity = rs.getString("quantity_needed");
+                    Double quantity = rs.getDouble("quantity_needed");
                     // połaczenie
                     list.add(new RecipeIngredient(ing, quantity));
                 }
@@ -262,9 +262,9 @@ public class RecipeDao implements IRecipeDao {
             // szuka po bazie
             while (rs.next()) {
                 String name = rs.getString("name");
-                String qty = rs.getString("quantity_needed");
+                Double qty = rs.getDouble("quantity_needed");
                 // formatowanie, jak jest ilość to ją pokazuje, jak nie ma to nie ma nic
-                if (qty == null || qty.isEmpty() || qty.equals("---")) {
+                if (qty == 0.0) {
                     result.add("- " + name);
                 } else {
                     result.add("- " + name + " - " + qty);

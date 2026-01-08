@@ -31,6 +31,7 @@ public class AddRecipeController {
         List<String> dbIngredients = recipeDao.getAllIngredientNames();
         ingredientInput.getItems().addAll(dbIngredients);
 
+
         ingredientInput.setEditable(true);
         ingredientInput.setVisibleRowCount(5);
         ingredientInput.setPromptText("Wybierz składnik (np. makaron Spaghetti)");
@@ -46,16 +47,26 @@ public class AddRecipeController {
                 }
             }
         });
+
+        // sprawdzanie czy wpisany tekst to tylko liczba z kropką
+        quantityInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                quantityInput.setText(oldValue);
+            }
+        });
     }
 
     //dodawanie nowego składnika
     @FXML
     private void onAddIngredientToList() {
+        double quantity = 0.0;
         // pobieramy nazwę z ComboBoxa i ilość z pola tekstowego
         String name = ingredientInput.getEditor().getText().trim();
-        String quantity = quantityInput.getText().trim();
+        String quantityText = quantityInput.getText().trim();
 
         if (!name.isEmpty()) {
+
+            quantity = Double.parseDouble(quantityText);
 
             // filtrowanie naszej listy składników i czy tam istnieje składnik o nazwie name
             String dbName = ingredientInput.getItems().stream()
@@ -68,9 +79,6 @@ public class AddRecipeController {
                 showAlert("Nieznany składnik", "Składnik '" + name + "' nie istnieje w bazie danych.\nWybierz poprawny składnik z listy.");
                 return;
             }
-
-            // domyślna ilość, jeśli puste
-            if (quantity.isEmpty()) quantity = "---";
 
             // tworzymy skladnik z sama nazwa
             Ingredient pureIngredient = new Ingredient(dbName);
