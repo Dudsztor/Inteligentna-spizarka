@@ -24,7 +24,7 @@ public class PantryDao implements IPantryDao {
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String name = rs.getString("name");
-                String quantity = rs.getString("quantity");
+                Double quantity = rs.getDouble("quantity");
 
                 Ingredient ingredient = new Ingredient(id, name);
 
@@ -37,7 +37,7 @@ public class PantryDao implements IPantryDao {
     }
 
     // dodawanie do spiżarni. Strict, bo tylko dodajemy to co jest w bazie
-    public boolean addIngredientToPantryStrict(String name, String quantity) {
+    public boolean addIngredientToPantryStrict(String name, Double quantity) {
         int id = getIngredientIdByName(name);
 
         // jeśli id to -1 to byłby jakiś błąd, bo składniki mają id dodatnie
@@ -54,7 +54,7 @@ public class PantryDao implements IPantryDao {
             // tutaj 1 - pierwsza wartość, czyli ingredient_id
             pstmt.setInt(1, id);
             // tutaj 2 - durga wartość, czyli quantity
-            pstmt.setString(2, quantity);
+            pstmt.setDouble(2, quantity);
             pstmt.executeUpdate();
             //System.out.println("Dodano do spiżarni: " + name);
             return true;

@@ -51,6 +51,12 @@ public class MainController {
         pantryInput.getItems().addAll(validIngredients);
         new AutoCompleteListener<>(pantryInput);
 
+        quantityInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                quantityInput.setText(oldValue);
+            }
+        });
+
         // konfiguracja prawej kolumny (baza wszystkich przepisów)
         allRecipesList.setItems(allRecipesObservable);
         loadRecipes(""); // Załaduj wszystko na start
@@ -219,14 +225,14 @@ public class MainController {
     //dodawanie składnika - przycisk
     @FXML
     private void onAddPantryItem() {
+        double quantity = 0.0;
         // pobieranie napisu
         String name = pantryInput.getEditor().getText();
-        String quantity = quantityInput.getText();
+        String quantityText = quantityInput.getText().trim();
 
         // jeśli napis nie jest pusty ani nie jest spacją
         if (name != null && !name.trim().isEmpty()) {
-            // jeśli ilość składników jest pusta to zastępuje ---
-            if (quantity == null || quantity.trim().isEmpty()) quantity = "---";
+            quantity = Double.parseDouble(quantityText);
 
             // sprawdzamy czy się dodało
             boolean success = pantryDao.addIngredientToPantryStrict(name, quantity);
