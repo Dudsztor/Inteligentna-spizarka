@@ -5,6 +5,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
+import org.main.recipeapp.dao.IRecipeDao;
 import org.main.recipeapp.dao.RecipeDao;
 import org.main.recipeapp.model.Recipe;
 
@@ -16,7 +17,7 @@ public class RecipeDetailController {
     @FXML private ListView<String> ingredientsList;
     @FXML private TextArea descriptionArea;
 
-    private final RecipeDao recipeDao = new RecipeDao();
+    private final IRecipeDao recipeDao = new RecipeDao();
 
     // funkcja do przenoszenia danych z głównego okna do okienka recipe details
     public void setRecipeData(Recipe recipe) {

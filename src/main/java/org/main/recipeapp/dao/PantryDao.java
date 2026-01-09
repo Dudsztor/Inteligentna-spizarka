@@ -40,7 +40,9 @@ public class PantryDao implements IPantryDao {
 
     // dodawanie do spiżarni. Strict, bo tylko dodajemy to co jest w bazie
     public boolean addIngredientToPantryStrict(String name, Double quantity) {
-        int id = getIngredientIdByName(name);
+
+        IIngredientDao ingredientDao = new IngredientDao();
+        int id = ingredientDao.getIngredientIdByName(name);
 
         // jeśli id to -1 to byłby jakiś błąd, bo składniki mają id dodatnie
         if (id == -1) {
@@ -82,23 +84,6 @@ public class PantryDao implements IPantryDao {
         }
     }
 
-    // zdobywanie id dzięki nazwę składnika
-    public int getIngredientIdByName(String name) {
-
-        String sql = "SELECT id FROM ingredients WHERE lower(name) = lower(?)";
-
-        //połączenie z bazą
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            //wyszukuje zamiast pytajnik to nazwę
-            pstmt.setString(1, name.trim());
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) return rs.getInt("id");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
     public void cookRecipe(Recipe recipe) {
         // zmniejsza ilość albo usuwa
         String updateSql = "UPDATE pantry SET quantity = quantity - ? WHERE ingredient_id = ?";
