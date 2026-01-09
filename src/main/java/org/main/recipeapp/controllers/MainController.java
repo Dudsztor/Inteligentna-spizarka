@@ -88,6 +88,25 @@ public class MainController {
     }
 
     @FXML
+    protected void onShoppingListClick() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/main/recipeapp/shopping-list-view.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+
+            ShoppingListController shoppingListController = fxmlLoader.getController();
+            shoppingListController.setMainController(this);
+
+            Stage stage = new Stage();
+            stage.setTitle("Lista Zakupów");
+            stage.setScene(scene);
+            stage.showAndWait();
+            refreshAll();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     protected void onAddRecipeClick() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/main/recipeapp/add-recipe-view.fxml"));
@@ -102,7 +121,7 @@ public class MainController {
             e.printStackTrace();
         }
     }
-    private void refreshAll(){
+    public void refreshAll(){
         //odświeżenie kolumny prawej
         refreshRecipesList();
         //odświeżenie kolumny lewej

@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.main.recipeapp.AutoCompleteListener;
+import org.main.recipeapp.dao.IRecipeDao;
 import org.main.recipeapp.dao.RecipeDao;
 import org.main.recipeapp.model.Ingredient;
 import org.main.recipeapp.model.RecipeIngredient;
@@ -22,7 +23,7 @@ public class AddRecipeController {
     @FXML private TextArea descField;
 
     private final ObservableList<RecipeIngredient> tempIngredients = FXCollections.observableArrayList();
-    private RecipeDao recipeDao = new RecipeDao();
+    private final IRecipeDao recipeDao = new RecipeDao();
 
     @FXML
     public void initialize() {

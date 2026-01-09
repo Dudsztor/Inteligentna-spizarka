@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15.0" style="-fx-background-color: #1E1E2C;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.main.recipeapp.controllers.ShoppingListController" prefWidth="400.0" prefHeight="500.0">
+
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <Label text="Lista Zakupów" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 20px;"/>
+    <Label text="Dodaj produkty, które musisz kupić." style="-fx-text-fill: #A0A0B8; -fx-font-size: 12px;"/>
+
+    <HBox spacing="10.0">
+        <ComboBox fx:id="itemInput" promptText="Produkt..." editable="true" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                  style="-fx-background-color: #2D2D44; -fx-text-base-color: white;"/>
+
+        <TextField fx:id="quantityInput" promptText="Ile?" prefWidth="70.0"
+                   style="-fx-background-color: #2D2D44; -fx-text-fill: white;"/>
+
+        <Button text="+" onAction="#onAddItem"
+                style="-fx-background-color: #03DAC6; -fx-text-fill: black; -fx-font-weight: bold;"/>
+    </HBox>
+
+    <ListView fx:id="shoppingListView" VBox.vgrow="ALWAYS"
+              style="-fx-background-color: #2D2D44; -fx-control-inner-background: #2D2D44; -fx-background-radius: 5;"/>
+
+    <HBox spacing="10.0">
+        <Button text="Kupione" onAction="#onBuyItem" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                style="-fx-background-color: #03DAC6; -fx-text-fill: black; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
+
+        <Button text="Usuń" onAction="#onDeleteItem" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                style="-fx-background-color: #CF6679; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
+
+        <Button text="Zamknij" onAction="#onClose" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                style="-fx-background-color: #3E3E55; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;"/>
+    </HBox>
+
+</VBox>
