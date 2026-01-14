@@ -41,7 +41,7 @@ public class PantryDao implements IPantryDao {
     // dodawanie do spiżarni. Strict, bo tylko dodajemy to co jest w bazie
     public boolean addIngredientToPantryStrict(String name, Double quantity) {
 
-        IIngredientDao ingredientDao = new IngredientDao();
+        IngredientDao ingredientDao = new IngredientDao();
         int id = ingredientDao.getIngredientIdByName(name);
 
         // jeśli id to -1 to byłby jakiś błąd, bo składniki mają id dodatnie

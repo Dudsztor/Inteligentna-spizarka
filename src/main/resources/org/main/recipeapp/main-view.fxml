@@ -53,7 +53,7 @@
             <Label text="TWOJE SKŁADNIKI" style="-fx-padding: 0 0 10 0; -fx-text-fill: #BB86FC; -fx-font-weight: bold; -fx-font-size: 12px; -fx-letter-spacing: 1.5;" />
 
             <ListView fx:id="pantryListView" VBox.vgrow="ALWAYS"
-                      style="-fx-background-color: transparent; -fx-control-inner-background: #1E1E2C; -fx-background-insets: 0;" />
+                      style="-fx-font-size: 16px; -fx-background-color: transparent; -fx-control-inner-background: #1E1E2C; -fx-background-insets: 0;" />
 
             <Button text="Usuń zaznaczony" onAction="#onDeletePantryItemClick"
                     maxWidth="Infinity"
@@ -70,7 +70,7 @@
 
             <Separator opacity="0.1" style="-fx-padding: 15 0 15 0;" />
 
-            <ListView fx:id="smartRecipeList" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-control-inner-background: #1E1E2C;" />
+            <ListView fx:id="smartRecipeList" VBox.vgrow="ALWAYS" style="-fx-font-size: 18px; -fx-background-color: transparent; -fx-control-inner-background: #1E1E2C;" />
 
             <Button text="Ugotowane! (Odejmij składniki)" onAction="#onCookRecipeClick"
                     maxWidth="Infinity"
@@ -91,13 +91,49 @@
             </TextField>
 
             <ListView fx:id="allRecipesList" VBox.vgrow="ALWAYS"
-                      style="-fx-background-color: transparent; -fx-control-inner-background: #1E1E2C; -fx-background-insets: 0;" />
+                      style="-fx-font-size: 18px; -fx-background-color: transparent; -fx-control-inner-background: #1E1E2C; -fx-background-insets: 0;" />
 
             <Button text="Usuń zaznaczony" onAction="#onDeleteRecipeClick"
                     maxWidth="Infinity"
                     style="-fx-background-color: #CF6679; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-margin: 10 0 0 0;">
                 <VBox.margin><Insets top="15.0" /></VBox.margin>
             </Button>
+        </VBox>
+
+        <VBox minWidth="220.0" maxWidth="250.0" style="-fx-background-color: #2D2D44; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0);">
+            <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+
+            <Label text="ZEGARY" style="-fx-text-fill: #F1C40F; -fx-font-weight: bold; -fx-font-size: 12px; -fx-letter-spacing: 1.5;" />
+            <Label text="Pilnuj czasu pieczenia" style="-fx-text-fill: #A0A0B8; -fx-font-size: 11px;" />
+
+            <Separator opacity="0.1" style="-fx-padding: 10 0 10 0;" />
+
+            <VBox spacing="5.0">
+                <TextField fx:id="timerNameInput" promptText="Co się piecze?"
+                           style="-fx-background-color: #1E1E2C; -fx-text-fill: white; -fx-background-radius: 5;"/>
+
+                <HBox spacing="5.0" alignment="CENTER_LEFT">
+                    <TextField fx:id="timerMinutesInput" promptText="Min" prefWidth="50.0"
+                               style="-fx-background-color: #1E1E2C; -fx-text-fill: white; -fx-background-radius: 5; -fx-alignment: CENTER;"/>
+
+                    <Label text=":" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+
+                    <TextField fx:id="timerSecondsInput" promptText="Sek" prefWidth="50.0"
+                               style="-fx-background-color: #1E1E2C; -fx-text-fill: white; -fx-background-radius: 5; -fx-alignment: CENTER;"/>
+
+                    <Pane HBox.hgrow="ALWAYS" /> <Button text="Start" onAction="#onAddTimerClick"
+                                                         style="-fx-background-color: #F1C40F; -fx-text-fill: black; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+
+            <Separator opacity="0.1" style="-fx-padding: 10 0 10 0;" />
+
+            <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                <content>
+                    <VBox fx:id="timersContainer" spacing="10.0" style="-fx-background-color: transparent;" />
+                </content>
+            </ScrollPane>
+
         </VBox>
 
     </HBox>
