@@ -27,7 +27,12 @@
     <TextArea fx:id="descriptionArea" VBox.vgrow="ALWAYS" wrapText="true" editable="false"
               style="-fx-control-inner-background: #2D2D44; -fx-text-fill: white; -fx-background-color: #2D2D44; -fx-background-radius: 10;"/>
 
-    <HBox alignment="CENTER_RIGHT">
+    <HBox alignment="CENTER_RIGHT" spacing="10.0">
+        <Button text="Eksportuj do pliku" onAction="#onExportClick"
+                style="-fx-background-color: #3E3E55; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 8;">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+        </Button>
+
         <Button text="Zamknij" onAction="#onClose"
                 style="-fx-background-color: #CF6679; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 8;">
             <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>

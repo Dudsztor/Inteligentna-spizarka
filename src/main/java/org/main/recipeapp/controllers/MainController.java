@@ -18,9 +18,12 @@ import org.main.recipeapp.dao.PantryDao;
 import org.main.recipeapp.dao.RecipeDao;
 import org.main.recipeapp.model.PantryItem;
 import org.main.recipeapp.model.Recipe;
+import org.main.recipeapp.model.TimerBox;
 
 import java.io.IOException;
 import java.util.List;
+
+import static java.lang.Integer.parseInt;
 
 public class MainController {
 
@@ -36,6 +39,12 @@ public class MainController {
     // --- PRAWA KOLUMNA (Wyszukiwarka) ---
     @FXML private TextField searchField;
     @FXML private ListView<Recipe> allRecipesList;
+
+    // --- BARDZIEJ PRAWA KOLUMNA (Zegary) ---
+    @FXML private VBox timersContainer;
+    @FXML private TextField timerNameInput;
+    @FXML private TextField timerMinutesInput;
+    @FXML private TextField timerSecondsInput;
 
     private IRecipeDao recipeDao;
     private IPantryDao pantryDao;
@@ -60,6 +69,18 @@ public class MainController {
                 quantityInput.setText(oldValue);
             }
         });
+        // można tylko wpisywać liczby
+        timerMinutesInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\d*)?")) {
+                timerMinutesInput.setText(oldValue);
+            }
+        });
+        timerSecondsInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\d*)?")) {
+                timerSecondsInput.setText(oldValue);
+            }
+        });
+
 
         // konfiguracja prawej kolumny (baza wszystkich przepisów)
         allRecipesList.setItems(allRecipesObservable);
@@ -161,18 +182,10 @@ public class MainController {
                 refreshAll();
             } else {
                 // jeśli jest błąd to jest błąd
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Błąd");
-                alert.setHeaderText("Nieznany składnik");
-                alert.setContentText("Składnik '" + name + "' nie znajduje się w naszej bazie danych.\nWybierz składnik z listy podpowiedzi.");
-                alert.showAndWait();
+                showAlert("Nieznany składnik", "Składnik " + name + " nie znajduje się w bazie danych.");
             }
         } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Błąd");
-            alert.setHeaderText("Brak danych");
-            alert.setContentText("Podaj liczbę");
-            alert.showAndWait();
+            showAlert("Uwaga","Podaj liczbę");
         }
     }
 
@@ -181,11 +194,7 @@ public class MainController {
         PantryItem selectedItem = pantryListView.getSelectionModel().getSelectedItem();
 
         if (selectedItem == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Błąd");
-            alert.setHeaderText("Nie wybrano składnika");
-            alert.setContentText("Wybierz składnik");
-            alert.showAndWait();
+            showAlert("Uwaga","Nie wybrano składnika");
             return;
         }
 
@@ -228,11 +237,7 @@ public class MainController {
         Recipe selectedRecipe = smartRecipeList.getSelectionModel().getSelectedItem();
 
         if (selectedRecipe == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Błąd");
-            alert.setHeaderText("Nie wybrano przepisu");
-            alert.setContentText("Wybierz przepis");
-            alert.showAndWait();
+            showAlert("Uwaga", "Nie wybrano przepisu");
             return;
         }
 
@@ -252,11 +257,7 @@ public class MainController {
                 refreshAll();
 
                 // sukces 🎆🎆🎆
-                Alert success = new Alert(Alert.AlertType.INFORMATION);
-                success.setTitle("Ugotowane");
-                success.setHeaderText("Smacznego");
-                success.setContentText("Składniki zostały zaktualizowane.");
-                success.show();
+                showAlert("Brawo", "Ugotowano!");
             }
         });
     }
@@ -300,11 +301,7 @@ public class MainController {
 
         //sprawdza czy wybraliśmy przepis
         if (selectedRecipe == null) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Uwaga");
-            alert.setHeaderText("Błąd");
-            alert.setContentText("Nie wybrano przepisu");
-            alert.showAndWait();
+            showAlert("Uwaga", "Nie wybrano przepisu");
             return;
         }
 
@@ -340,6 +337,39 @@ public class MainController {
         });
     }
 
+    // =====================================================================================================
+    // ZEGARY - BARDZIEJ PRAWA STRONA
+
+    @FXML
+    private void onAddTimerClick() {
+
+        String name = timerNameInput.getText().trim();
+
+        // pobieramy tekst
+        String minText = timerMinutesInput.getText().trim();
+        String secText = timerSecondsInput.getText().trim();
+
+        if (name.isEmpty()) return;
+
+        // zmienia wpisany string na liczbe - jak sie wpisało coś innego to wywala błąd
+        int minutes = minText.isEmpty() ? 0 : parseInt(minText);
+        int seconds = secText.isEmpty() ? 0 : parseInt(secText);
+
+        if (minutes == 0 && seconds == 0) return;
+
+        // przeliczanie na sekundy
+        int totalSeconds = (minutes * 60) + seconds;
+
+        // timer box
+        TimerBox newTimer = new TimerBox(name, totalSeconds, timersContainer);
+        timersContainer.getChildren().add(newTimer);
+
+        // czyszczenie pól
+        timerNameInput.clear();
+        timerMinutesInput.clear();
+        timerSecondsInput.clear();
+    }
+
     private void loadRecipes(String query) {
         allRecipesObservable.clear();
         if (query == null || query.isEmpty()) {
@@ -347,5 +377,12 @@ public class MainController {
         } else {
             allRecipesObservable.addAll(recipeDao.searchRecipes(query));
         }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText(title);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
