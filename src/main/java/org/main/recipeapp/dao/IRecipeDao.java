@@ -1,5 +1,6 @@
 package org.main.recipeapp.dao;
 
+import org.main.recipeapp.model.MissingItemRecipe;
 import org.main.recipeapp.model.Recipe;
 import org.main.recipeapp.model.RecipeIngredient;
 
@@ -15,4 +16,5 @@ public interface IRecipeDao {
     List<Recipe> getDoableRecipes();
     void insertRecipeIngredients(int recipeId, List<RecipeIngredient> ingredients);
     List<RecipeIngredient> getIngredientsForRecipeId(int recipeId);
+    List<MissingItemRecipe> getAlmostDoableRecipes(int limit);
 }

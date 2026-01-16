@@ -4,18 +4,19 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.main.recipeapp.AutoCompleteListener;
-import org.main.recipeapp.dao.IPantryDao;
-import org.main.recipeapp.dao.IRecipeDao;
-import org.main.recipeapp.dao.PantryDao;
-import org.main.recipeapp.dao.RecipeDao;
+import org.main.recipeapp.Main;
+import org.main.recipeapp.dao.*;
+import org.main.recipeapp.model.MissingItemRecipe;
 import org.main.recipeapp.model.PantryItem;
 import org.main.recipeapp.model.Recipe;
 import org.main.recipeapp.model.TimerBox;
@@ -35,6 +36,10 @@ public class MainController {
 
     // --- ŚRODKOWA KOLUMNA (Smart Lista) ---
     @FXML private ListView<Recipe> smartRecipeList;
+
+    // --- SRODKOWA DOLNA
+    @FXML private ListView<MissingItemRecipe> almostDoableList;
+    private IShoppingListDao shoppingDao;
 
     // --- PRAWA KOLUMNA (Wyszukiwarka) ---
     @FXML private TextField searchField;
@@ -56,6 +61,7 @@ public class MainController {
     public void initialize() {
         this.recipeDao = new RecipeDao();
         this.pantryDao = new PantryDao();
+        this.shoppingDao = new ShoppingListDao();
 
         // konfiguracje lewej kolumny
         List<String> validIngredients = recipeDao.getAllIngredientNames();
@@ -105,6 +111,29 @@ public class MainController {
                 }
             }
         });
+
+        smartRecipeList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Recipe selected = smartRecipeList.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    openRecipeDetails(selected);
+                }
+            }
+        });
+
+        // --- KONFIGURACJA LISTY "BRAKUJE 1 SKŁADNIKA" ---
+        setupAlmostDoableCellFactory();
+
+        almostDoableList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                MissingItemRecipe selected = almostDoableList.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    // wyciągamy czysty przepis z wrappera i otwieramy okno szczegółów
+                    openRecipeDetails(selected.getRecipe());
+                }
+            }
+        });
+
         refreshAll();
     }
 
@@ -120,6 +149,7 @@ public class MainController {
             Stage stage = new Stage();
             stage.setTitle("Lista Zakupów");
             stage.setScene(scene);
+            Main.setAppIcon(stage);
             stage.showAndWait();
             refreshAll();
         } catch (IOException e) {
@@ -134,6 +164,7 @@ public class MainController {
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             stage.setTitle("Dodaj nowy przepis");
+            Main.setAppIcon(stage);
             stage.setScene(new Scene(root));
             stage.showAndWait();
 
@@ -149,6 +180,8 @@ public class MainController {
         refreshPantryList();
         //odswiezanie srodkowej
         refreshSmartList();
+        //dolna srodkowa
+        refreshAlmostDoableList();
     }
     // =====================================================================================================
     // LODÓWKA - LEWA STRONA
@@ -262,6 +295,52 @@ public class MainController {
         });
     }
 
+    // SRODEK DOL
+
+    private void refreshAlmostDoableList() {
+        // np 5 propozycji z RecipeDao
+        List<MissingItemRecipe> almostDoable = recipeDao.getAlmostDoableRecipes(5);
+        if (almostDoableList != null) {
+            almostDoableList.getItems().setAll(almostDoable);
+        }
+    }
+
+    private void setupAlmostDoableCellFactory() {
+        almostDoableList.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(MissingItemRecipe item, boolean empty) {
+                super.updateItem(item, empty);
+
+                // czyszczone tło samej komórki listy, żeby była przezroczysta
+                setStyle("-fx-background-color: transparent; -fx-padding: 5px;");
+
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    // glowny kontener
+                    VBox container = new VBox(3); // odstęp 3px między tytułem a brakiem
+                    container.setAlignment(Pos.CENTER_LEFT);
+
+                    // tytul przepisu
+                    Label titleLabel = new Label(item.getRecipe().getTitle());
+                    titleLabel.setStyle("-fx-text-fill: #BB86FC; -fx-font-weight: bold; -fx-font-size: 14px;");
+
+                    // info o braku
+                    String missingText = "Brakuje: " + item.getMissingIngredient().getName() +
+                            " (" + item.getMissingQuantity() + ")";
+                    Label missingLabel = new Label(missingText);
+                    missingLabel.setStyle("-fx-text-fill: #CF6679; -fx-font-size: 11px; -fx-font-style: italic;");
+
+                    // Dodajemy etykiety do kontenera
+                    container.getChildren().addAll(titleLabel, missingLabel);
+
+                    setGraphic(container);
+                }
+            }
+        });
+    }
+
     // =====================================================================================================
     // PRZEPISY - PRAWA STRONA
 
@@ -286,6 +365,7 @@ public class MainController {
             Stage stage = new Stage();
             stage.setTitle(recipe.getTitle());
             stage.setScene(new Scene(root));
+            Main.setAppIcon(stage);
             stage.show();
 
         } catch (IOException e) {

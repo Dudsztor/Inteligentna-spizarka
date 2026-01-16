@@ -2,6 +2,7 @@ package org.main.recipeapp.dao;
 
 import org.main.recipeapp.DatabaseConnection;
 import org.main.recipeapp.model.Ingredient;
+import org.main.recipeapp.model.MissingItemRecipe;
 import org.main.recipeapp.model.Recipe;
 import org.main.recipeapp.model.RecipeIngredient;
 
@@ -282,6 +283,59 @@ public class RecipeDao implements IRecipeDao {
                     result.add("- " + name + " - " + qty);
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public List<MissingItemRecipe> getAlmostDoableRecipes(int limit) {
+        List<MissingItemRecipe> result = new ArrayList<>();
+
+        // łączymy przepis ze składnikami i spiżarnią
+        // filtrujemy tylko te wiersze gdzie brakuje skladnika albo jest za malo
+        //grupujemy po id przepisu
+        // bierzemy tam gdzie jest dokladnie 1 brakujacy
+        // zwracane jest co i ile
+
+        String sql = """
+            SELECT r.id, r.title, r.description,
+                   i.id AS ing_id, i.name AS ing_name,
+                   (ri.quantity_needed - IFNULL(p.quantity, 0)) AS missing_amount
+            FROM recipes r
+            JOIN recipe_ingredients ri ON r.id = ri.recipe_id
+            JOIN ingredients i ON ri.ingredient_id = i.id
+            LEFT JOIN pantry p ON ri.ingredient_id = p.ingredient_id
+            WHERE (p.quantity IS NULL OR p.quantity < ri.quantity_needed)
+            GROUP BY r.id
+            HAVING COUNT(*) = 1
+            LIMIT ?
+        """;
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, limit);
+
+            try(ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int recipeId = rs.getInt("id");
+                    String title = rs.getString("title");
+                    String desc = rs.getString("description");
+
+                    List<RecipeIngredient> fullIngredients = getIngredientsForRecipeIdInternal(recipeId, conn);
+                    Recipe recipe = new Recipe(recipeId, title, desc, fullIngredients);
+
+                    int missingIngId = rs.getInt("ing_id");
+                    String missingIngName = rs.getString("ing_name");
+                    double missingAmount = rs.getDouble("missing_amount");
+
+                    Ingredient missingIngredient = new Ingredient(missingIngId, missingIngName);
+
+                    result.add(new MissingItemRecipe(recipe, missingIngredient, missingAmount));
+                }
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -8,7 +8,7 @@ public class DatabaseConnection {
     private static DatabaseConnection instance;
     private Connection connection;
 
-    private static final String url = "jdbc:sqlite:spizarka.db";
+    private static final String url = "jdbc:sqlite:spizarka/Inteligentna-spizarka/spizarka.db";
 
     private DatabaseConnection() {
         try {
