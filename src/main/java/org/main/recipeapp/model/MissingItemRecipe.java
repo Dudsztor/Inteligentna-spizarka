@@ -13,7 +13,7 @@ public class MissingItemRecipe {
 
     public Recipe getRecipe() { return recipe; }
     public Ingredient getMissingIngredient() { return missingIngredient; }
-    public double getMissingQuantity() { return missingQuantity; }
+    public double getMissingQuantity() { return Math.round((missingQuantity * 100.0) / 100.0); }
 
     @Override
     public String toString() {
