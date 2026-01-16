@@ -72,6 +72,14 @@
 
             <ListView fx:id="smartRecipeList" VBox.vgrow="ALWAYS" style="-fx-font-size: 18px; -fx-background-color: transparent; -fx-control-inner-background: #1E1E2C;" />
 
+            <Separator opacity="0.1" style="-fx-padding: 15 0 15 0;" />
+
+            <Label text="Brakuje tylko jednego składnika!" style="-fx-padding: 0 0 10 0; -fx-text-fill: #CF6679; -fx-font-weight: bold;"/>
+            <ListView fx:id="almostDoableList" prefHeight="150.0"
+                      style="-fx-background-color: transparent; -fx-control-inner-background: #1E1E2C; -fx-background-insets: 0; -fx-padding: 0;"/>
+
+            <Separator opacity="0.1" style="-fx-padding: 15 0 15 0;" />
+
             <Button text="Ugotowane! (Odejmij składniki)" onAction="#onCookRecipeClick"
                     maxWidth="Infinity"
                     style="-fx-background-color: #03DAC6; -fx-text-fill: #1E1E2C; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;">
