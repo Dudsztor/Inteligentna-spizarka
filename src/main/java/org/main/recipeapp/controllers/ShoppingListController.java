@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import org.main.recipeapp.AutoCompleteListener;
 import org.main.recipeapp.dao.IRecipeDao;
 import org.main.recipeapp.dao.IShoppingListDao;
@@ -14,6 +15,11 @@ import org.main.recipeapp.model.PantryItem;
 import java.util.List;
 
 public class ShoppingListController {
+
+    private static ShoppingListController instance;
+    public static ShoppingListController getInstance() {
+        return instance;
+    }
 
     @FXML private ComboBox<String> itemInput;
     @FXML private TextField quantityInput;
@@ -30,6 +36,9 @@ public class ShoppingListController {
 
     @FXML
     public void initialize() {
+
+        instance = this;
+
         // konfiguracja listy
         shoppingListView.setItems(itemsObservable);
         refreshList();
@@ -82,14 +91,17 @@ public class ShoppingListController {
         }
     }
 
-    private void refreshList() {
+    public void refreshList() {
         itemsObservable.setAll(shoppingListDao.getShoppingList());
     }
 
     // zamykanie
     @FXML
-    private void onClose() {
-        itemInput.getScene().getWindow().hide();
+    public void onClose() {
+        instance = null; // zeby maincontroller wiedzial ze zamknelismy okno
+        if (itemInput.getScene() != null) {
+            itemInput.getScene().getWindow().hide();
+        }
     }
 
     // kupowanie przedmiotu (przenoszenie do spiżarni)
@@ -111,4 +123,20 @@ public class ShoppingListController {
 
         mainController.refreshAll();
     }
+
+    //do przywolywania okna na wierzch jakby
+    public void focus() {
+        if (itemInput != null && itemInput.getScene() != null) {
+            Stage stage = (Stage) itemInput.getScene().getWindow();
+            // jeśli zminimalizowane to przywroc
+            if (stage.isIconified()) {
+                stage.setIconified(false);
+            }
+            // daj na wierzch
+            stage.toFront();
+            stage.requestFocus();
+        }
+    }
+
+
 }

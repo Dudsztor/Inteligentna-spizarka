@@ -16,6 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AddRecipeController {
+
+    private static AddRecipeController instance;
+    public static AddRecipeController getInstance() {
+        return instance;
+    }
+
     @FXML private ComboBox<String> ingredientInput;
     @FXML private ListView<RecipeIngredient> ingredientsListView;
     @FXML private TextField quantityInput;
@@ -25,8 +31,13 @@ public class AddRecipeController {
     private final ObservableList<RecipeIngredient> tempIngredients = FXCollections.observableArrayList();
     private final IRecipeDao recipeDao = new RecipeDao();
 
+    private MainController mainController;
+
     @FXML
     public void initialize() {
+
+        instance = this;
+
         ingredientsListView.setItems(tempIngredients);
 
         List<String> dbIngredients = recipeDao.getAllIngredientNames();
@@ -55,6 +66,10 @@ public class AddRecipeController {
                 quantityInput.setText(oldValue);
             }
         });
+    }
+
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
     }
 
     //dodawanie nowego składnika
@@ -139,4 +154,28 @@ public class AddRecipeController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
+    //do przywolywania okna na wierzch jak w shoppinglist
+    public void focus() {
+        if (ingredientInput != null && ingredientInput.getScene() != null) {
+            Stage stage = (Stage) ingredientInput.getScene().getWindow();
+            // jeśli zminimalizowane to przywroc
+            if (stage.isIconified()) {
+                stage.setIconified(false);
+            }
+            // daj na wierzch
+            stage.toFront();
+            stage.requestFocus();
+        }
+    }
+
+    // zamykanie
+    @FXML
+    public void onClose() {
+        instance = null; // zeby maincontroller wiedzial ze zamknelismy okno
+        if (ingredientInput.getScene() != null) {
+            ingredientInput.getScene().getWindow().hide();
+        }
+    }
+
 }

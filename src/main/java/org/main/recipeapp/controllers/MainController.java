@@ -139,6 +139,13 @@ public class MainController {
 
     @FXML
     protected void onShoppingListClick() {
+        ShoppingListController existingWindow = ShoppingListController.getInstance();
+
+        if (existingWindow != null) {
+            existingWindow.focus();
+            return;
+        }
+
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/main/recipeapp/shopping-list-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
@@ -148,9 +155,11 @@ public class MainController {
 
             Stage stage = new Stage();
             stage.setTitle("Lista Zakupów");
+            stage.initOwner(pantryListView.getScene().getWindow());
             stage.setScene(scene);
             Main.setAppIcon(stage);
-            stage.showAndWait();
+            stage.show();
+            stage.setOnCloseRequest(e -> shoppingListController.onClose());
             refreshAll();
         } catch (IOException e) {
             e.printStackTrace();
@@ -159,14 +168,28 @@ public class MainController {
 
     @FXML
     protected void onAddRecipeClick() {
+
+        AddRecipeController existingWindow = AddRecipeController.getInstance();
+
+        if (existingWindow != null) {
+            existingWindow.focus();
+            return;
+        }
+
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/main/recipeapp/add-recipe-view.fxml"));
-            Parent root = fxmlLoader.load();
+            Scene scene = new Scene(fxmlLoader.load());
+
+            AddRecipeController addRecipeController = fxmlLoader.getController();
+            addRecipeController.setMainController(this);
+
             Stage stage = new Stage();
             stage.setTitle("Dodaj nowy przepis");
+            stage.initOwner(pantryListView.getScene().getWindow());
+            stage.setScene(scene);
             Main.setAppIcon(stage);
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
+            stage.show();
+            stage.setOnCloseRequest(e -> addRecipeController.onClose());
 
             refreshAll();
         } catch (IOException e) {
