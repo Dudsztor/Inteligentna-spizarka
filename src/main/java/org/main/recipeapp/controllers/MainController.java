@@ -224,7 +224,7 @@ public class MainController {
         String quantityText = quantityInput.getText().trim();
 
         // jeśli napis nie jest pusty ani nie jest spacją
-        if (name != null && !name.trim().isEmpty() && quantityText != null && !quantityText.trim().isEmpty()) {
+        if (name != null && !name.trim().isEmpty() && quantityText != null && !quantityText.trim().isEmpty() && !quantityText.equals(".")) {
             quantity = Double.parseDouble(quantityText);
 
             // sprawdzamy czy się dodało
@@ -259,6 +259,7 @@ public class MainController {
 
         // Odświeżamy widok
         refreshAll();
+        RecipeDetailController.refreshAllOpenInstances();
     }
 
     private void setupPantryCellFactory() {
@@ -311,6 +312,7 @@ public class MainController {
 
                 // odświeżamy wszystko
                 refreshAll();
+                RecipeDetailController.refreshAllOpenInstances();
 
                 // sukces 🎆🎆🎆
                 showAlert("Brawo", "Ugotowano!");
@@ -382,13 +384,23 @@ public class MainController {
 
             // pobieramy kontroler
             RecipeDetailController controller = loader.getController();
+            controller.setMainController(this);
             // pokazujemy przepis kontrolerowi
             controller.setRecipeData(recipe);
 
             Stage stage = new Stage();
+
+            // żeby nie znikało
+            if (pantryListView.getScene() != null) {
+                stage.initOwner(pantryListView.getScene().getWindow());
+            }
+
             stage.setTitle(recipe.getTitle());
             stage.setScene(new Scene(root));
             Main.setAppIcon(stage);
+            stage.setOnCloseRequest(e -> {
+                controller.onClose();
+            });
             stage.show();
 
         } catch (IOException e) {
@@ -433,8 +445,20 @@ public class MainController {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
+                    setGraphic(null);
+                    setStyle("-fx-background-color: transparent;");
                 } else {
-                    setText(item.getTitle());
+                    // LOGIKA KOLORÓW
+                    if (item.isFavorite()) {
+                        // ulubione
+                        setText("♡ " + item.getTitle());
+                        setStyle("-fx-text-fill: #03dac6; -fx-font-weight: bold;");
+
+                    } else {
+                        // zwykłe
+                        setText(item.getTitle());
+                        setStyle("-fx-text-fill: white;");
+                    }
                 }
             }
         });

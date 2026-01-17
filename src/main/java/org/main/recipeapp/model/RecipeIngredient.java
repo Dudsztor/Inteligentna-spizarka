@@ -3,6 +3,8 @@ package org.main.recipeapp.model;
 public class RecipeIngredient {
     private Ingredient ingredient;
     private Double quantity;
+    private double quantityInPantry = 0.0;
+    private double quantityInShoppingList = 0.0;
 
     public RecipeIngredient(Ingredient ingredient, Double quantity) {
         this.ingredient = ingredient;
@@ -17,4 +19,10 @@ public class RecipeIngredient {
     public String toString() {
         return ingredient.getName() + " (" + quantity + ")";
     }
+
+    public void setQuantityInPantry(double qty) { this.quantityInPantry = qty; }
+    public double getQuantityInPantry() { return quantityInPantry; }
+
+    public void setQuantityInShoppingList(double qty) { this.quantityInShoppingList = qty; }
+    public double getQuantityInShoppingList() { return quantityInShoppingList; }
 }

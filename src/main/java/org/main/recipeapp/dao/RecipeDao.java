@@ -1,6 +1,7 @@
 package org.main.recipeapp.dao;
 
 import org.main.recipeapp.DatabaseConnection;
+import org.main.recipeapp.UserPreferences;
 import org.main.recipeapp.model.Ingredient;
 import org.main.recipeapp.model.MissingItemRecipe;
 import org.main.recipeapp.model.Recipe;
@@ -115,23 +116,33 @@ public class RecipeDao implements IRecipeDao {
 
     private List<RecipeIngredient> getIngredientsForRecipeIdInternal(int recipeId, Connection conn) {
         List<RecipeIngredient> list = new ArrayList<>();
-        String sql = "SELECT i.id, i.name, ri.quantity_needed FROM ingredients i " +
-                "JOIN recipe_ingredients ri ON i.id = ri.ingredient_id " +
-                "WHERE ri.recipe_id = ?";
+        String sql = """
+            SELECT 
+                i.id, 
+                i.name, 
+                ri.quantity_needed,
+                IFNULL(p.quantity, 0) as pantry_qty,
+                IFNULL(s.quantity, 0) as shopping_qty
+            FROM ingredients i
+            JOIN recipe_ingredients ri ON i.id = ri.ingredient_id
+            LEFT JOIN pantry p ON i.id = p.ingredient_id
+            LEFT JOIN shopping_list s ON i.id = s.ingredient_id
+            WHERE ri.recipe_id = ?
+        """;
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, recipeId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while(rs.next()) {
-                    int id = rs.getInt("id");
-                    String name = rs.getString("name");
-                    Ingredient ing = new Ingredient(id, name);
+                    Ingredient ing = new Ingredient(rs.getInt("id"), rs.getString("name"));
+                    double needed = rs.getDouble("quantity_needed");
 
-                    // skladnik
-                    double quantity = rs.getDouble("quantity_needed");
+                    RecipeIngredient ri = new RecipeIngredient(ing, needed);
 
-                    // połaczenie
-                    list.add(new RecipeIngredient(ing, quantity));
+                    ri.setQuantityInPantry(rs.getDouble("pantry_qty"));
+                    ri.setQuantityInShoppingList(rs.getDouble("shopping_qty"));
+
+                    list.add(ri);
                 }
             }
         } catch (SQLException e) {
@@ -160,11 +171,24 @@ public class RecipeDao implements IRecipeDao {
                         rs.getString("description"),
                         ingredients
                 );
+
+                if (UserPreferences.isFavorite(id)) {
+                    recipe.setFavorite(true);
+                }
+
                 recipes.add(recipe);
             }
         } catch (SQLException e) {
             System.out.println("Błąd odczytu: " + e.getMessage());
         }
+
+        // sorotwanie ulubionych
+        recipes.sort((r1, r2) -> {
+            if (r1.isFavorite() && !r2.isFavorite()) return -1;
+            if (!r1.isFavorite() && r2.isFavorite()) return 1;
+            return r1.getTitle().compareToIgnoreCase(r2.getTitle());
+        });
+
         return recipes;
     }
 

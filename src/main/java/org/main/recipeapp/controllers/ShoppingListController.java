@@ -63,7 +63,7 @@ public class ShoppingListController {
         String qtyText = quantityInput.getText().trim();
 
         // odwołujemy funkcję jeśli nazwa albo ilość jest pusta
-        if (name.isEmpty() || qtyText.isEmpty()) return;
+        if (name.isEmpty() || qtyText.isEmpty() || qtyText.equals(".")) return;
 
         double qty = Double.parseDouble(qtyText);
         boolean success = shoppingListDao.addToShoppingList(name, qty);
@@ -72,6 +72,7 @@ public class ShoppingListController {
             itemInput.getEditor().clear();
             quantityInput.clear();
             refreshList();
+            RecipeDetailController.refreshAllOpenInstances();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Błąd");
@@ -88,6 +89,7 @@ public class ShoppingListController {
         if (selected != null) {
             shoppingListDao.removeFromShoppingList(selected.getIngredient().getId());
             refreshList();
+            RecipeDetailController.refreshAllOpenInstances();
         }
     }
 
@@ -122,6 +124,7 @@ public class ShoppingListController {
         refreshList();
 
         mainController.refreshAll();
+        RecipeDetailController.refreshAllOpenInstances();
     }
 
     //do przywolywania okna na wierzch jakby

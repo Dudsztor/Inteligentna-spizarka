@@ -80,7 +80,7 @@ public class AddRecipeController {
         String name = ingredientInput.getEditor().getText().trim();
         String quantityText = quantityInput.getText().trim();
 
-        if (!name.isEmpty()) {
+        if (!name.isEmpty() && !quantityText.equals(".")) {
 
             quantity = Double.parseDouble(quantityText);
 
@@ -142,9 +142,7 @@ public class AddRecipeController {
 
         recipeDao.insertRecipe(newRecipe);
 
-        // Zamknięcie okna
-        Stage stage = (Stage) titleField.getScene().getWindow();
-        stage.close();
+        onClose();
     }
 
     private void showAlert(String header, String content) {

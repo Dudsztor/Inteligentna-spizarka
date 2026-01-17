@@ -7,6 +7,7 @@ public class Recipe {
     private String title;
     private String description;
     private List<RecipeIngredient> ingredients;
+    private boolean isFavorite;
 
     //konstruktor dla nowych przepisów
     public Recipe(String title, String description, List<RecipeIngredient> ingredients) {
@@ -27,4 +28,6 @@ public class Recipe {
     public String getTitle() { return title; }
     public String getDescription() { return description; }
     public List<RecipeIngredient> getIngredients() { return ingredients; }
+    public void setFavorite(boolean favorite) { this.isFavorite = favorite; }
+    public boolean isFavorite() { return isFavorite; }
 }

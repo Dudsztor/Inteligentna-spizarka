@@ -4,6 +4,7 @@ module org.main.recipeapp {
     requires java.desktop;
     requires java.sql;
     requires junit;
+    requires java.prefs;
 //    requires org.main.recipeapp;
 
 
