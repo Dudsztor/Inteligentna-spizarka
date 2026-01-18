@@ -276,43 +276,6 @@ public class RecipeDao implements IRecipeDao {
         }
     }
 
-    // pobieranie listy składników i ich ilości do przepisu
-    public List<String> getIngredientsForRecipe(int recipeId) {
-        List<String> result = new ArrayList<>();
-
-        // wybieranie nazwy i potrzebnej ilości z bazy
-        String sql = """
-            SELECT i.name, ri.quantity_needed 
-            FROM recipe_ingredients ri
-            JOIN ingredients i ON ri.ingredient_id = i.id
-            WHERE ri.recipe_id = ?
-        """;
-
-        // połączenie z bazą
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            // w miejsce pytajnika daje recipeId
-            pstmt.setInt(1, recipeId);
-            ResultSet rs = pstmt.executeQuery();
-
-            // szuka po bazie
-            while (rs.next()) {
-                String name = rs.getString("name");
-                Double qty = rs.getDouble("quantity_needed");
-                // formatowanie, jak jest ilość to ją pokazuje, jak nie ma to nie ma nic
-                if (qty == 0.0) {
-                    result.add("- " + name);
-                } else {
-                    result.add("- " + name + " - " + qty);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
     public List<MissingItemRecipe> getAlmostDoableRecipes(int limit) {
         List<MissingItemRecipe> result = new ArrayList<>();
 

@@ -11,7 +11,6 @@ public interface IRecipeDao {
     List<Recipe> getAllRecipes();
     List<Recipe> searchRecipes(String query);
     void deleteRecipe(int recipeId);
-    List<String> getIngredientsForRecipe(int recipeId);
     List<String> getAllIngredientNames();
     List<Recipe> getDoableRecipes();
     void insertRecipeIngredients(int recipeId, List<RecipeIngredient> ingredients);
