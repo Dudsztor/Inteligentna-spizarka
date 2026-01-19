@@ -65,7 +65,7 @@ public class AddRecipeController {
             if (!newValue.matches("\\d*(\\.\\d*)?")) {
                 quantityInput.setText(oldValue);
             }
-            if (!newValue.matches("\\d{0,4}")) {
+            if (newValue.length() > 6) {
                 quantityInput.setText(oldValue);
             }
         });
@@ -145,6 +145,7 @@ public class AddRecipeController {
 
         recipeDao.insertRecipe(newRecipe);
 
+        mainController.refreshAll();
         onClose();
     }
 
