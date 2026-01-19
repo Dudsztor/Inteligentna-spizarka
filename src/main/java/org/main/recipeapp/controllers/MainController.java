@@ -74,15 +74,24 @@ public class MainController {
             if (!newValue.matches("\\d*(\\.\\d*)?")) {
                 quantityInput.setText(oldValue);
             }
+            if (!newValue.matches("\\d{0,4}")) {
+                quantityInput.setText(oldValue);
+            }
         });
         // można tylko wpisywać liczby
         timerMinutesInput.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*(\\d*)?")) {
                 timerMinutesInput.setText(oldValue);
             }
+            if (!newValue.matches("\\d{0,4}")) {
+                timerMinutesInput.setText(oldValue);
+            }
         });
         timerSecondsInput.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*(\\d*)?")) {
+                timerSecondsInput.setText(oldValue);
+            }
+            if (!newValue.matches("\\d{0,4}")) {
                 timerSecondsInput.setText(oldValue);
             }
         });

@@ -65,6 +65,9 @@ public class AddRecipeController {
             if (!newValue.matches("\\d*(\\.\\d*)?")) {
                 quantityInput.setText(oldValue);
             }
+            if (!newValue.matches("\\d{0,4}")) {
+                quantityInput.setText(oldValue);
+            }
         });
     }
 

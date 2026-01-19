@@ -24,7 +24,7 @@ public class TimerBox extends HBox {
 
         // elementy ui
         Label nameLabel = new Label(name);
-        nameLabel.setStyle("-fx-text-fill: #BB86FC; -fx-font-weight: bold; -fx-pref-width: 100;");
+        nameLabel.setStyle("-fx-text-fill: #BB86FC; -fx-font-weight: bold;");
 
         Label timeLabel = new Label(formatTime(secondsLeft));
         timeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Monospaced'; -fx-font-size: 14px; -fx-font-weight: bold;");
@@ -56,6 +56,7 @@ public class TimerBox extends HBox {
                 secondsLeft--;
 
                 Platform.runLater(() -> {
+                    if (!isRunning) { return; }
                     timeLabel.setText(formatTime(secondsLeft));
                 });
             }

@@ -53,6 +53,9 @@ public class ShoppingListController {
             if (!newVal.matches("\\d*(\\.\\d*)?")) {
                 quantityInput.setText(oldVal);
             }
+            if (!newVal.matches("\\d{0,4}")) {
+                quantityInput.setText(oldVal);
+            }
         });
     }
 
