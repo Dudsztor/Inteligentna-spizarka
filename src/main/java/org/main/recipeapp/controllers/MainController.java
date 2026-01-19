@@ -74,7 +74,7 @@ public class MainController {
             if (!newValue.matches("\\d*(\\.\\d*)?")) {
                 quantityInput.setText(oldValue);
             }
-            if (!newValue.matches("\\d{0,4}")) {
+            if (newValue.length() > 6) {
                 quantityInput.setText(oldValue);
             }
         });
@@ -83,7 +83,7 @@ public class MainController {
             if (!newValue.matches("\\d*(\\d*)?")) {
                 timerMinutesInput.setText(oldValue);
             }
-            if (!newValue.matches("\\d{0,4}")) {
+            if (newValue.length() > 6) {
                 timerMinutesInput.setText(oldValue);
             }
         });
@@ -91,7 +91,7 @@ public class MainController {
             if (!newValue.matches("\\d*(\\d*)?")) {
                 timerSecondsInput.setText(oldValue);
             }
-            if (!newValue.matches("\\d{0,4}")) {
+            if (newValue.length() > 6) {
                 timerSecondsInput.setText(oldValue);
             }
         });

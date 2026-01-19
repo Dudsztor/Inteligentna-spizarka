@@ -9,10 +9,10 @@ public class DatabaseConnection {
     private Connection connection;
 
     //LORAK
-    //private static final String url = "jdbc:sqlite:spizarka/Inteligentna-spizarka/spizarka.db";
+    private static final String url = "jdbc:sqlite:spizarka/Inteligentna-spizarka/spizarka.db";
 
     //DUDSZTOR
-    private static final String url = "jdbc:sqlite:spizarka.db";
+//    private static final String url = "jdbc:sqlite:spizarka.db";
 
     private DatabaseConnection() {
         try {
